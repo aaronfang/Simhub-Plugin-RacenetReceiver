@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:Aaron.PluginRacenetReceiver"
     xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" xmlns:Custom="http://metro.mahapps.com/winfx/xaml/controls" x:Class="Aaron.PluginRacenetReceiver.SettingsControl"
     mc:Ignorable="d" 
-    d:DesignHeight="650" d:DesignWidth="400">
+    d:DesignHeight="1000" d:DesignWidth="1200">
 
     <UserControl.Resources>
         <Style TargetType="Button">
@@ -21,8 +21,11 @@
             <Setter Property="FontSize" Value="18"/>
         </Style>
         <Style TargetType="ComboBox">
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
             <Setter Property="FontSize" Value="16"/>
+        </Style>
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="White"/>
         </Style>
     </UserControl.Resources>
 
@@ -32,5 +35,17 @@
             <Label Content="Club Name:"/>
             <ComboBox x:Name="clubNameComboBox" SelectionChanged="ClubNameComboBox_SelectionChanged" DropDownOpened="ClubNameComboBox_DropDownOpened" Width="343" Height="30"/>
         </StackPanel>
+        <TabControl Margin="40,240,40,20">
+            <TabItem Header="Time Trial Info">
+                <Grid>
+                    <!-- Add controls to display time trial info here... -->
+                </Grid>
+            </TabItem>
+            <TabItem Header="Club Info">
+                <Grid>
+                    <!-- Add controls to display club info here... -->
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

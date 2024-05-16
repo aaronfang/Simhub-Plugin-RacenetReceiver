@@ -26,7 +26,7 @@ namespace Aaron.PluginRacenetReceiver
     public partial class SettingsControl : UserControl
     {
         private readonly RacenetDataReceiver plugin;
-        private readonly Settings settings;
+        // private readonly Settings settings;
 
         public SettingsControl(RacenetDataReceiver plugin)
         {
@@ -37,11 +37,11 @@ namespace Aaron.PluginRacenetReceiver
             if (File.Exists("settings.json"))
             {
                 string jsonSettings = File.ReadAllText("settings.json");
-                this.settings = JsonConvert.DeserializeObject<Settings>(jsonSettings);
+                plugin.Settings = JsonConvert.DeserializeObject<Settings>(jsonSettings);
             }
             else
             {
-                this.settings = new Settings
+                plugin.Settings = new Settings
                 {
                     RefreshToken = plugin.RefreshToken,
                     ClubName = plugin.ClubName
@@ -50,7 +50,7 @@ namespace Aaron.PluginRacenetReceiver
 
             FillClubList();
 
-            plugin.RefreshToken = settings.RefreshToken;
+            plugin.RefreshToken = plugin.Settings.RefreshToken;
             // plugin.DoRefreshToken(false);
         }
 
@@ -58,6 +58,8 @@ namespace Aaron.PluginRacenetReceiver
         {
             if (clubNameComboBox.IsLoaded)
             {
+                //clean up the list
+                clubNameComboBox.Items.Clear();
                 // Sort the club list by club name
 
                 var selectedIndex = 0;
@@ -66,7 +68,7 @@ namespace Aaron.PluginRacenetReceiver
                 foreach (var club in sortedClubList)
                 {
                     clubNameComboBox.Items.Add(club.clubName);
-                    if(club.clubName == settings.ClubName)
+                    if(club.clubName == plugin.Settings.ClubName)
                     {
                         selectedIndex = idx;
                     }
@@ -90,7 +92,7 @@ namespace Aaron.PluginRacenetReceiver
             if (dialog.ShowDialog() == true)
             {
                 string refreshToken = dialog.Token;
-                settings.RefreshToken = refreshToken;
+                plugin.Settings.RefreshToken = refreshToken;
                 plugin.RefreshToken = refreshToken;
                 plugin.DoRefreshToken(false);
                 SaveSettings();
@@ -99,8 +101,11 @@ namespace Aaron.PluginRacenetReceiver
 
         private void ClubNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if(clubNameComboBox.SelectedItem == null) return;
+
             string clubName = clubNameComboBox.SelectedItem.ToString();
-            settings.ClubName = clubName;
+            plugin.Settings.ClubName = clubName;
+            plugin.Settings.RefreshToken = plugin.RefreshToken;
             plugin.ClubName = clubName;
             SaveSettings();
 
@@ -125,9 +130,10 @@ namespace Aaron.PluginRacenetReceiver
         private void SaveSettings()
         {
             // Check if the token and club name are not empty before saving
-            if (!string.IsNullOrEmpty(settings.RefreshToken) && !string.IsNullOrEmpty(settings.ClubName))
+            if (!string.IsNullOrEmpty(plugin.Settings.RefreshToken) && !string.IsNullOrEmpty(plugin.Settings.ClubName))
             {
-                string json = JsonConvert.SerializeObject(settings);
+                // settings.RefreshToken = plugin.RefreshToken;
+                string json = JsonConvert.SerializeObject(plugin.Settings);
                 File.WriteAllText("settings.json", json);
             }
             else

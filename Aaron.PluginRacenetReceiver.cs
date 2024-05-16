@@ -23,6 +23,7 @@ namespace Aaron.PluginRacenetReceiver
     public class RacenetDataReceiver : IPlugin, IDataPlugin, IWPFSettings
     {
         public PluginManager PluginManager { get; set; }
+        public Settings Settings { get; set; }
         private System.Timers.Timer refreshTokenTimer;
         private DateTime lastFetchTime = DateTime.MinValue;
         private string access_token;
@@ -132,15 +133,6 @@ namespace Aaron.PluginRacenetReceiver
 
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            // Load settings from file
-            //if (File.Exists("settings.json"))
-            //{
-            //    string jsonSettings = File.ReadAllText("settings.json");
-            //    Settings settings = JsonConvert.DeserializeObject<Settings>(jsonSettings);
-            //    RefreshToken = settings.RefreshToken;
-            //    // ClubName = settings.ClubName;
-            //}
-            // Refresh the token
             DoRefreshToken();
         }
         

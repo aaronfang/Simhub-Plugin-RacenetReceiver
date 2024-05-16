@@ -1,0 +1,36 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:Aaron.PluginRacenetReceiver"
+    xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" xmlns:Custom="http://metro.mahapps.com/winfx/xaml/controls" x:Class="Aaron.PluginRacenetReceiver.SettingsControl"
+    mc:Ignorable="d" 
+    d:DesignHeight="650" d:DesignWidth="400">
+
+    <UserControl.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#FFE3574E"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="18"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Button x:Name="openDialogButton" Content="Paste Your Racenet Refresh Token" Click="OpenDialogButton_Click" Width="343" Height="51" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,69,0,0"/>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="40,148,0,0">
+            <Label Content="Club Name:"/>
+            <ComboBox x:Name="clubNameComboBox" SelectionChanged="ClubNameComboBox_SelectionChanged" DropDownOpened="ClubNameComboBox_DropDownOpened" Width="343" Height="30"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

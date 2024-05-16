@@ -59,15 +59,24 @@ namespace Aaron.PluginRacenetReceiver
             if (clubNameComboBox.IsLoaded)
             {
                 // Sort the club list by club name
-                var sortedClubList = plugin.ClubListData.OrderBy(club => club.clubName.ToString()).ToList();
 
+                var selectedIndex = 0;
+                var sortedClubList = plugin.ClubListData.OrderBy(club => club.clubName.ToString()).ToList();
+                var idx = 0;
                 foreach (var club in sortedClubList)
                 {
                     clubNameComboBox.Items.Add(club.clubName);
+                    if(club.clubName == settings.ClubName)
+                    {
+                        selectedIndex = idx;
+                    }
+                    idx++;
                 }
 
+
+
                 // Set the selected item to the saved club name
-                clubNameComboBox.SelectedItem = settings.ClubName;
+                clubNameComboBox.SelectedIndex = selectedIndex;
             }
             else
             {
@@ -94,6 +103,9 @@ namespace Aaron.PluginRacenetReceiver
             settings.ClubName = clubName;
             plugin.ClubName = clubName;
             SaveSettings();
+
+            // Log the selected club name
+            Logging.Current.Info($"Selected Club Name: {clubName}");
         }
 
         private void ClubNameComboBox_DropDownOpened(object sender, EventArgs e)

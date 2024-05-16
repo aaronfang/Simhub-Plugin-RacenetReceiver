@@ -16,6 +16,8 @@ using SimHub.Plugins.Styles;
 using System.IO;
 using Newtonsoft.Json;
 using SimHub;
+using Newtonsoft.Json.Linq;
+using System.Reflection.Emit;
 
 
 namespace Aaron.PluginRacenetReceiver
@@ -26,7 +28,8 @@ namespace Aaron.PluginRacenetReceiver
     public partial class SettingsControl : UserControl
     {
         private readonly RacenetDataReceiver plugin;
-        // private readonly Settings settings;
+        private Dictionary<string, dynamic> timeTrialPreInfoDataJson;
+        private Dictionary<string, string> locations;
 
         public SettingsControl(RacenetDataReceiver plugin)
         {
@@ -51,7 +54,100 @@ namespace Aaron.PluginRacenetReceiver
             FillClubList();
 
             plugin.RefreshToken = plugin.Settings.RefreshToken;
-            // plugin.DoRefreshToken(false);
+
+            // Attach the Loaded event handler
+            this.Loaded += SettingsControl_Loaded;
+        }
+
+        private dynamic findValueFromJObject(JObject jObject, string key)
+        {
+            foreach (var pair in jObject)
+            {
+                if (pair.Key == key)
+                {
+                    return pair.Value;
+                }
+                if (pair.Value is JObject)
+                {
+                    var value = findValueFromJObject((JObject)pair.Value, key);
+                    if (value != null)
+                    {
+                        return pair.Value;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private dynamic findListFromJObject(JObject jObject, string key)
+        {
+            List<JToken> allData = jObject.Children().Children().ToList();
+            var listData = allData.FirstOrDefault(x => x.Path == key);
+
+            return listData.Values();
+        }
+
+
+        private void SettingsControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Assuming pluginManager is accessible in this context
+            var timeTrialPreInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.timeTrialPreInfo"));
+
+
+            if (timeTrialPreInfoData != null)
+            {
+                // Deserialize the JSON string to a dictionary, where the key is the location ID and the value is the location name
+                //timeTrialPreInfoDataJson = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(timeTrialPreInfoData);
+                JObject data = JObject.Parse(timeTrialPreInfoData);
+                var locations = this.findValueFromJObject(data, "locations");
+                var location1 = this.findValueFromJObject(locations, "5");
+                var locationList = this.findListFromJObject(data, "locations");
+
+                var jsonData = JObject.Parse(timeTrialPreInfoData).Children();
+                List<JToken> allData = jsonData.Children().ToList();
+                var locationData = allData.FirstOrDefault(x => x.Path == "locations");
+
+                // Fill the locationComboBox with the location names
+                locationComboBox.Items.Clear();
+                foreach (var location in locationList)
+                {
+                    locationComboBox.Items.Add(location);
+                }
+
+                // Attach the SelectionChanged event handler
+                locationComboBox.SelectionChanged += LocationComboBox_SelectionChanged;
+            }
+        }
+
+        private void LocationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(locationComboBox.SelectedItem == null) return;
+
+            string selectedLocation = locationComboBox.SelectedItem.ToString();
+
+            // Get the location ID for the selected location
+            string selectedLocationId = locations.FirstOrDefault(x => x.Value == selectedLocation).Key;
+
+            if (string.IsNullOrEmpty(selectedLocationId))
+            {
+                Logging.Current.Info($"Location: {selectedLocation} not found in locations dictionary.");
+                return;
+            }
+
+            // Get the route IDs for the selected location
+            var routeIds = timeTrialPreInfoDataJson["locationRoute"][selectedLocationId];
+
+            Logging.Current.Info($"Selected Location: {selectedLocation}, Route IDs: {routeIds}");
+
+            // Clear the stageComboBox
+            stageComboBox.Items.Clear();
+
+            // Fill the stageComboBox with the route names
+            foreach (var routeId in routeIds)
+            {
+                var routeName = timeTrialPreInfoDataJson["routes"][routeId];
+                stageComboBox.Items.Add(routeName);
+            }
         }
 
         private void FillClubList()

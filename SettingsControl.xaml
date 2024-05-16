@@ -36,12 +36,37 @@
             <ComboBox x:Name="clubNameComboBox" SelectionChanged="ClubNameComboBox_SelectionChanged" DropDownOpened="ClubNameComboBox_DropDownOpened" Width="343" Height="30"/>
         </StackPanel>
         <TabControl Margin="40,240,40,20">
-            <TabItem Header="Time Trial Info">
+            <TabItem Header="Time Trial">
                 <Grid>
-                    <!-- Add controls to display time trial info here... -->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Row 1: ComboBoxes -->
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <ComboBox x:Name="locationComboBox" Width="200" Margin="5" />
+                        <ComboBox x:Name="stageComboBox" Width="200" Margin="5" />
+                        <ComboBox x:Name="carClassComboBox" Width="200" Margin="5" />
+                        <ComboBox x:Name="surfaceConditionComboBox" Width="200" Margin="5" />
+                    </StackPanel>
+
+                    <!-- Row 2: DataGrid -->
+                    <DataGrid x:Name="leaderboardDataGrid" Grid.Row="1" AutoGenerateColumns="False" Margin="5">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="POS." Binding="{Binding Position}" />
+                            <DataGridTextColumn Header="PLAYER" Binding="{Binding Player}" />
+                            <DataGridTextColumn Header="VEHICLE" Binding="{Binding Vehicle}" />
+                            <DataGridTextColumn Header="ASSISTS" Binding="{Binding Assists}" />
+                            <DataGridTextColumn Header="PENALTY" Binding="{Binding Penalty}" />
+                            <DataGridTextColumn Header="TIME" Binding="{Binding Time}" />
+                            <DataGridTextColumn Header="DIFF 1ST" Binding="{Binding DiffFirst}" />
+                            <DataGridTextColumn Header="Points" Binding="{Binding Points}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Club Info">
+            <TabItem Header="Club">
                 <Grid>
                     <!-- Add controls to display club info here... -->
                 </Grid>

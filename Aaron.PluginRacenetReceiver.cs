@@ -121,7 +121,7 @@ namespace Aaron.PluginRacenetReceiver
             {
                 // Set the timer interval to the token's expiration time minus a small buffer time
                 // Here we assume the token expires in 1 hour (3600 seconds)
-                Interval = (3600 / 12) * 1000 // Convert to milliseconds
+                Interval = (3600) * 1000 // Convert to milliseconds
             };
 
             // Set the timer event

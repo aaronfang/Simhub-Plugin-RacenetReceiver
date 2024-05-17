@@ -34,7 +34,7 @@ namespace Aaron.PluginRacenetReceiver
         private string selectedStage;
         private string selectedCarClass;
         private string selectedSurfaceCondition;
-        private bool hasLoaded = false;
+        //private readonly bool hasLoaded = false;
 
         public SettingsControl(RacenetDataReceiver plugin)
         {
@@ -74,16 +74,6 @@ namespace Aaron.PluginRacenetReceiver
             FillCarClassComboBox();
             FillSurfaceConditionComboBox();
 
-            // Restore user's selections
-            // selectedLocation = plugin.Settings.SelectedLocation ?? locationComboBox.Items[0].ToString();
-            // selectedStage = plugin.Settings.SelectedStage ?? stageComboBox.Items[0].ToString();
-            // selectedCarClass = plugin.Settings.SelectedCarClass ?? carClassComboBox.Items[0].ToString();
-            // selectedSurfaceCondition = plugin.Settings.SelectedSurfaceCondition ?? surfaceConditionComboBox.Items[0].ToString();
-            // locationComboBox.SelectedItem = selectedLocation;
-            // stageComboBox.SelectedItem = selectedStage;
-            // carClassComboBox.SelectedItem = selectedCarClass;
-            // surfaceConditionComboBox.SelectedItem = selectedSurfaceCondition;
-
             Logging.Current.Info($"Selected Location: {selectedLocation}");
             Logging.Current.Info($"Selected Stage: {selectedStage}");
             Logging.Current.Info($"Selected Car Class: {selectedCarClass}");
@@ -111,7 +101,7 @@ namespace Aaron.PluginRacenetReceiver
                 var orderedLocations = timeTrialPreInfoDataJson["orderedLocations"];
 
                 // Save the currently selected item
-                var selectedItem = locationComboBox.SelectedItem;
+                //var selectedItem = locationComboBox.SelectedItem;
 
                 // Fill the locationComboBox with the location names in the order specified by orderedLocations
                 locationComboBox.Items.Clear();
@@ -151,6 +141,7 @@ namespace Aaron.PluginRacenetReceiver
             FillStageComboBox(selectedLocation);
             Logging.Current.Info($"Selected Location Changed To: {selectedLocation}");
             SaveSettings();
+            CheckAndFillLeaderboardDataGrid();
         }
 
         private void FillStageComboBox(string selectedLocation)
@@ -215,6 +206,7 @@ namespace Aaron.PluginRacenetReceiver
             plugin.Settings.SelectedStage = selectedStage;
             Logging.Current.Info($"Selected Stage Changed To: {selectedStage}");
             SaveSettings();
+            CheckAndFillLeaderboardDataGrid();
         }
 
         private void FillCarClassComboBox()
@@ -262,6 +254,7 @@ namespace Aaron.PluginRacenetReceiver
             plugin.Settings.SelectedCarClass = selectedCarClass;
             Logging.Current.Info($"Selected Car Class Changed To: {selectedCarClass}");
             SaveSettings();
+            CheckAndFillLeaderboardDataGrid();
         }
 
         private void FillSurfaceConditionComboBox()
@@ -307,6 +300,7 @@ namespace Aaron.PluginRacenetReceiver
             plugin.Settings.SelectedSurfaceCondition = selectedSurfaceCondition;
             Logging.Current.Info($"Selected Surface Condition Changed To: {selectedSurfaceCondition}");
             SaveSettings();
+            CheckAndFillLeaderboardDataGrid();
         }
 
         private void FillClubList()
@@ -396,6 +390,60 @@ namespace Aaron.PluginRacenetReceiver
                 // Log an error message or throw an exception
                 Logging.Current.Info("Error: Token or Club Name is empty. Settings not saved.");
             }
+        }
+
+        // Define a class to represent a row in the leaderboardDataGrid
+        public class LeaderboardRow
+        {
+            public int Pos { get; set; }
+            public string Player { get; set; }
+            public string Vehicle { get; set; }
+            public int Assists { get; set; }
+            public string Penalty { get; set; }
+            public string Time { get; set; }
+            public string Diff1st { get; set; }
+        }
+
+        private void FillLeaderboardDataGrid(dynamic leaderboardData)
+        {
+            // Convert the leaderboardData to a list of LeaderboardRow
+            List<LeaderboardRow> rows = new List<LeaderboardRow>();
+            foreach (var entry in leaderboardData.entries)
+            {
+                rows.Add(new LeaderboardRow
+                {
+                    Pos = entry.rank,
+                    Player = entry.displayName,
+                    Vehicle = entry.vehicle,
+                    Assists = entry.assistFlags.Count,
+                    Penalty = entry.timePenalty,
+                    Time = entry.time,
+                    Diff1st = entry.differenceToFirst
+                });
+            }
+
+            // Fill the leaderboardDataGrid with the rows
+            leaderboardDataGrid.ItemsSource = rows;
+        }
+
+        private void CheckAndFillLeaderboardDataGrid()
+        {
+            // // Check if all the combo boxes have a selected item
+            // if (stageComboBox.SelectedItem != null && carClassComboBox.SelectedItem != null && surfaceConditionComboBox.SelectedItem != null)
+            // {
+                
+
+            //     // Convert the selected values to the parameters needed for FetchTimeTrialLeaderboardDataAsync
+            //     int stageId = selectedStage;
+            //     int vehicleClassId = selectedCarClass;
+            //     int surfaceConditionId = selectedSurfaceCondition;
+
+            //     // Fetch the leaderboard data
+            //     var leaderboardData = await plugin.FetchTimeTrialLeaderboardDataAsync(stageId, vehicleClassId, surfaceConditionId);
+
+            //     // Fill the leaderboardDataGrid with the fetched data
+            //     FillLeaderboardDataGrid(leaderboardData);
+            // }
         }
     }
 }

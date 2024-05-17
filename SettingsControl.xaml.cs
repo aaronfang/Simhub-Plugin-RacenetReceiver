@@ -28,8 +28,13 @@ namespace Aaron.PluginRacenetReceiver
     public partial class SettingsControl : UserControl
     {
         private readonly RacenetDataReceiver plugin;
-        private Dictionary<string, dynamic> timeTrialPreInfoDataJson;
-        private Dictionary<string, string> locations;
+
+        // Add fields to save user's selections
+        private string selectedLocation;
+        private string selectedStage;
+        private string selectedCarClass;
+        private string selectedSurfaceCondition;
+        private bool hasLoaded = false;
 
         public SettingsControl(RacenetDataReceiver plugin)
         {
@@ -59,63 +64,76 @@ namespace Aaron.PluginRacenetReceiver
             this.Loaded += SettingsControl_Loaded;
         }
 
-        private dynamic findValueFromJObject(JObject jObject, string key)
-        {
-            foreach (var pair in jObject)
-            {
-                if (pair.Key == key)
-                {
-                    return pair.Value;
-                }
-                if (pair.Value is JObject)
-                {
-                    var value = findValueFromJObject((JObject)pair.Value, key);
-                    if (value != null)
-                    {
-                        return pair.Value;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private dynamic findListFromJObject(JObject jObject, string key)
-        {
-            List<JToken> allData = jObject.Children().Children().ToList();
-            var listData = allData.FirstOrDefault(x => x.Path == key);
-
-            return listData.Values();
-        }
-
-
         private void SettingsControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            FillLocationComboBox();            
+            if (locationComboBox.SelectedItem != null)
+            {
+                FillStageComboBox(locationComboBox.SelectedItem.ToString());
+            }
+            FillCarClassComboBox();
+            FillSurfaceConditionComboBox();
+
+            // Restore user's selections
+            // selectedLocation = plugin.Settings.SelectedLocation ?? locationComboBox.Items[0].ToString();
+            // selectedStage = plugin.Settings.SelectedStage ?? stageComboBox.Items[0].ToString();
+            // selectedCarClass = plugin.Settings.SelectedCarClass ?? carClassComboBox.Items[0].ToString();
+            // selectedSurfaceCondition = plugin.Settings.SelectedSurfaceCondition ?? surfaceConditionComboBox.Items[0].ToString();
+            // locationComboBox.SelectedItem = selectedLocation;
+            // stageComboBox.SelectedItem = selectedStage;
+            // carClassComboBox.SelectedItem = selectedCarClass;
+            // surfaceConditionComboBox.SelectedItem = selectedSurfaceCondition;
+
+            Logging.Current.Info($"Selected Location: {selectedLocation}");
+            Logging.Current.Info($"Selected Stage: {selectedStage}");
+            Logging.Current.Info($"Selected Car Class: {selectedCarClass}");
+            Logging.Current.Info($"Selected Surface Condition: {selectedSurfaceCondition}");
+
+            // Save the default selections if the settings file does not exist or the selections are null
+            if (!File.Exists("settings.json") || plugin.Settings.SelectedLocation == null || plugin.Settings.SelectedStage == null || plugin.Settings.SelectedCarClass == null || plugin.Settings.SelectedSurfaceCondition == null)
+            {
+                SaveSettings();
+            }
+        }
+
+        private void FillLocationComboBox()
         {
             // Assuming pluginManager is accessible in this context
             var timeTrialPreInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.timeTrialPreInfo"));
 
-
             if (timeTrialPreInfoData != null)
             {
-                // Deserialize the JSON string to a dictionary, where the key is the location ID and the value is the location name
-                //timeTrialPreInfoDataJson = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(timeTrialPreInfoData);
-                JObject data = JObject.Parse(timeTrialPreInfoData);
-                var locations = this.findValueFromJObject(data, "locations");
-                var location1 = this.findValueFromJObject(locations, "5");
-                var locationList = this.findListFromJObject(data, "locations");
+                // Parse timeTrialPreInfoData to a JObject
+                JObject timeTrialPreInfoDataJson = JObject.Parse(timeTrialPreInfoData);
 
-                var jsonData = JObject.Parse(timeTrialPreInfoData).Children();
-                List<JToken> allData = jsonData.Children().ToList();
-                var locationData = allData.FirstOrDefault(x => x.Path == "locations");
+                // Get the locations from the JSON data
+                var locations = timeTrialPreInfoDataJson["locations"];
+                var orderedLocations = timeTrialPreInfoDataJson["orderedLocations"];
 
-                // Fill the locationComboBox with the location names
+                // Save the currently selected item
+                var selectedItem = locationComboBox.SelectedItem;
+
+                // Fill the locationComboBox with the location names in the order specified by orderedLocations
                 locationComboBox.Items.Clear();
-                foreach (var location in locationList)
+                foreach (var orderedLocation in orderedLocations.Children<JObject>())
                 {
-                    locationComboBox.Items.Add(location);
+                    var locationId = orderedLocation["id"].Value<string>();
+                    var location = locations[locationId];
+                    if (location != null)
+                    {
+                        locationComboBox.Items.Add(location.Value<string>());
+                    }
                 }
 
-                // Attach the SelectionChanged event handler
-                locationComboBox.SelectionChanged += LocationComboBox_SelectionChanged;
+                if (plugin.Settings.SelectedLocation != null)
+                {
+                    locationComboBox.SelectedItem = plugin.Settings.SelectedLocation;
+                }
+                else if (locationComboBox.HasItems)
+                {
+                    // Set the default selected item
+                    locationComboBox.SelectedIndex = 0;
+                }
             }
         }
 
@@ -125,8 +143,28 @@ namespace Aaron.PluginRacenetReceiver
 
             string selectedLocation = locationComboBox.SelectedItem.ToString();
 
+            // Save the user's selection
+            this.selectedLocation = selectedLocation;
+            plugin.Settings.SelectedLocation = selectedLocation;
+            plugin.Settings.SelectedStage = null;
+
+            FillStageComboBox(selectedLocation);
+            Logging.Current.Info($"Selected Location Changed To: {selectedLocation}");
+            SaveSettings();
+        }
+
+        private void FillStageComboBox(string selectedLocation)
+        {
+            // Assuming timeTrialPreInfoData is accessible in this context
+            var timeTrialPreInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.timeTrialPreInfo"));
+
+            // Parse timeTrialPreInfoData to a JObject
+            JObject timeTrialPreInfoDataJson = JObject.Parse(timeTrialPreInfoData);
+
             // Get the location ID for the selected location
-            string selectedLocationId = locations.FirstOrDefault(x => x.Value == selectedLocation).Key;
+            string selectedLocationId = timeTrialPreInfoDataJson["locations"]
+                .Children<JProperty>()
+                .FirstOrDefault(x => x.Value.ToString() == selectedLocation)?.Name;
 
             if (string.IsNullOrEmpty(selectedLocationId))
             {
@@ -137,17 +175,138 @@ namespace Aaron.PluginRacenetReceiver
             // Get the route IDs for the selected location
             var routeIds = timeTrialPreInfoDataJson["locationRoute"][selectedLocationId];
 
-            Logging.Current.Info($"Selected Location: {selectedLocation}, Route IDs: {routeIds}");
-
             // Clear the stageComboBox
             stageComboBox.Items.Clear();
 
             // Fill the stageComboBox with the route names
             foreach (var routeId in routeIds)
             {
-                var routeName = timeTrialPreInfoDataJson["routes"][routeId];
+                var routeName = timeTrialPreInfoDataJson["routes"][routeId.ToString()];
                 stageComboBox.Items.Add(routeName);
             }
+
+            // Check if there is a selected stage in the settings
+            if (plugin.Settings.SelectedStage != null)
+            {
+                foreach (var item in stageComboBox.Items)
+                {
+                    if (item.ToString() == plugin.Settings.SelectedStage)
+                    {
+                        stageComboBox.SelectedItem = item;
+                        break;
+                    }
+                }         
+            }
+            else if (stageComboBox.HasItems)
+            {
+                // Set the default selected item
+                stageComboBox.SelectedIndex = 0;
+            }
+        }
+
+        private void StageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(stageComboBox.SelectedItem == null) return;
+
+            string selectedStage = stageComboBox.SelectedItem.ToString();
+
+            // Save the user's selection
+            this.selectedStage = selectedStage;
+            plugin.Settings.SelectedStage = selectedStage;
+            Logging.Current.Info($"Selected Stage Changed To: {selectedStage}");
+            SaveSettings();
+        }
+
+        private void FillCarClassComboBox()
+        {
+            // Assuming pluginManager is accessible in this context
+            var timeTrialPreInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.timeTrialPreInfo"));
+            
+            if (timeTrialPreInfoData != null)
+            {
+                // Parse timeTrialPreInfoData to a JObject
+                JObject timeTrialPreInfoDataJson = JObject.Parse(timeTrialPreInfoData);
+
+                // Get the orderedVehicleClasses from the JSON data
+                var orderedVehicleClasses = timeTrialPreInfoDataJson["orderedVehicleClasses"];
+
+                // Fill the carClassComboBox with the vehicle class names in the order specified by orderedVehicleClasses
+                carClassComboBox.Items.Clear();
+                foreach (var orderedVehicleClass in orderedVehicleClasses.Children<JObject>())
+                {
+                    var vehicleClassName = orderedVehicleClass["value"].Value<string>();
+                    carClassComboBox.Items.Add(vehicleClassName);
+                }
+
+                if (plugin.Settings.SelectedCarClass != null)
+                {
+                    carClassComboBox.SelectedItem = plugin.Settings.SelectedCarClass;
+                }
+                else if (carClassComboBox.HasItems)
+                {
+                    // Set the default selected item
+                    carClassComboBox.SelectedIndex = 0;
+                    
+                }
+            }
+        }
+
+        private void CarClassComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(carClassComboBox.SelectedItem == null) return;
+
+            string selectedCarClass = carClassComboBox.SelectedItem.ToString();
+
+            // Save the user's selection
+            this.selectedCarClass = selectedCarClass;
+            plugin.Settings.SelectedCarClass = selectedCarClass;
+            Logging.Current.Info($"Selected Car Class Changed To: {selectedCarClass}");
+            SaveSettings();
+        }
+
+        private void FillSurfaceConditionComboBox()
+        {
+            // Assuming pluginManager is accessible in this context
+            var timeTrialPreInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.timeTrialPreInfo"));
+
+            if (timeTrialPreInfoData != null)
+            {
+                // Parse timeTrialPreInfoData to a JObject
+                JObject timeTrialPreInfoDataJson = JObject.Parse(timeTrialPreInfoData);
+
+                // Get the surface conditions from the JSON data
+                var surfaceConditions = timeTrialPreInfoDataJson["surfaceConditions"];
+
+                // Fill the surfaceConditionComboBox with the surface condition names
+                surfaceConditionComboBox.Items.Clear();
+                foreach (var surfaceCondition in surfaceConditions.Children<JProperty>())
+                {
+                    surfaceConditionComboBox.Items.Add(surfaceCondition.Value.Value<string>());
+                }
+
+                if (plugin.Settings.SelectedSurfaceCondition != null)
+                {
+                    surfaceConditionComboBox.SelectedItem = plugin.Settings.SelectedSurfaceCondition;
+                }
+                else if (surfaceConditionComboBox.HasItems)
+                {
+                    // Set the default selected item
+                    surfaceConditionComboBox.SelectedIndex = 0;
+                }
+            }
+        }
+
+        private void SurfaceConditionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(surfaceConditionComboBox.SelectedItem == null) return;
+
+            string selectedSurfaceCondition = surfaceConditionComboBox.SelectedItem.ToString();
+
+            // Save the user's selection
+            this.selectedSurfaceCondition = selectedSurfaceCondition;
+            plugin.Settings.SelectedSurfaceCondition = selectedSurfaceCondition;
+            Logging.Current.Info($"Selected Surface Condition Changed To: {selectedSurfaceCondition}");
+            SaveSettings();
         }
 
         private void FillClubList()

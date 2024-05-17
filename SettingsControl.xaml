@@ -45,10 +45,10 @@
 
                     <!-- Row 1: ComboBoxes -->
                     <StackPanel Orientation="Horizontal" Grid.Row="0">
-                        <ComboBox x:Name="locationComboBox" Width="200" Margin="5" />
-                        <ComboBox x:Name="stageComboBox" Width="200" Margin="5" />
-                        <ComboBox x:Name="carClassComboBox" Width="200" Margin="5" />
-                        <ComboBox x:Name="surfaceConditionComboBox" Width="200" Margin="5" />
+                        <ComboBox x:Name="locationComboBox" Width="200" Margin="5" SelectionChanged="LocationComboBox_SelectionChanged" />
+                        <ComboBox x:Name="stageComboBox" Width="200" Margin="5" SelectionChanged="StageComboBox_SelectionChanged" />
+                        <ComboBox x:Name="carClassComboBox" Width="200" Margin="5" SelectionChanged="CarClassComboBox_SelectionChanged" />
+                        <ComboBox x:Name="surfaceConditionComboBox" Width="200" Margin="5" SelectionChanged="SurfaceConditionComboBox_SelectionChanged" />
                     </StackPanel>
 
                     <!-- Row 2: DataGrid -->

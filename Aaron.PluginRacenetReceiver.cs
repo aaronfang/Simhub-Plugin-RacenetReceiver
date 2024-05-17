@@ -352,4 +352,34 @@ namespace Aaron.PluginRacenetReceiver
             }
         }
     }
+
+    public class JsonDataHelper
+    {
+        private readonly ILookup<string, string> data;
+
+        public JsonDataHelper(string jsonData)
+        {
+            JObject jsonObject = JObject.Parse(jsonData);
+
+            // Flatten the JSON structure into a lookup
+            data = jsonObject.Descendants()
+                .OfType<JProperty>()
+                .ToLookup(prop => prop.Name, prop => prop.Value.ToString());
+        }
+
+        public string GetValueByKey(string key)
+        {
+            return data[key].FirstOrDefault();
+        }
+
+        public string GetKeyByValue(string value)
+        {
+            return data.FirstOrDefault(group => group.Contains(value)).Key;
+        }
+
+        public IEnumerable<string> GetAllKeys()
+        {
+            return data.Select(group => group.Key);
+        }
+    }
 }

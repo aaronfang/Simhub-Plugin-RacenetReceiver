@@ -6,14 +6,14 @@
     xmlns:local="clr-namespace:Aaron.PluginRacenetReceiver"
     xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" xmlns:Custom="http://metro.mahapps.com/winfx/xaml/controls" x:Class="Aaron.PluginRacenetReceiver.SettingsControl"
     mc:Ignorable="d" 
-    d:DesignHeight="1000" d:DesignWidth="1200">
+    d:DesignHeight="1000" d:DesignWidth="992">
 
     <UserControl.Resources>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#FFE3574E"/>
+            <Setter Property="Background" Value="#FF1383B3"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontSize" Value="14"/>
         </Style>
         <Style TargetType="Label">
             <Setter Property="Foreground" Value="White"/>
@@ -30,47 +30,89 @@
     </UserControl.Resources>
 
     <Grid>
-        <Button x:Name="openDialogButton" Content="Paste Your Racenet Refresh Token" Click="OpenDialogButton_Click" Width="343" Height="51" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,69,0,0"/>
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="40,148,0,0">
-            <Label Content="Club Name:"/>
-            <ComboBox x:Name="clubNameComboBox" SelectionChanged="ClubNameComboBox_SelectionChanged" DropDownOpened="ClubNameComboBox_DropDownOpened" Width="343" Height="30"/>
-        </StackPanel>
-        <TabControl Margin="40,240,40,20">
-            <TabItem Header="Time Trial">
+        <TabControl Margin="0,12,10,53">
+            <TabItem Header="Time Trial" Height="39" VerticalAlignment="Top" FontFamily="Arial" FontSize="14" HorizontalAlignment="Center" Background="#FF252525">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/> 
                     </Grid.RowDefinitions>
 
-                    <!-- Row 1: ComboBoxes -->
+                    <!-- Row 1: Labels -->
                     <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <Label Content="Location" Width="200" Margin="5" />
+                        <Label Content="Stage" Width="200" Margin="5" />
+                        <Label Content="Car Class" Width="200" Margin="5" />
+                        <Label Content="Surface Condition" Width="200" Margin="5" />
+                    </StackPanel>
+
+                    <!-- Row 2: ComboBoxes -->
+                    <StackPanel Orientation="Horizontal" Grid.Row="1">
                         <ComboBox x:Name="locationComboBox" Width="200" Margin="5" SelectionChanged="LocationComboBox_SelectionChanged" />
                         <ComboBox x:Name="stageComboBox" Width="200" Margin="5" SelectionChanged="StageComboBox_SelectionChanged" />
                         <ComboBox x:Name="carClassComboBox" Width="200" Margin="5" SelectionChanged="CarClassComboBox_SelectionChanged" />
                         <ComboBox x:Name="surfaceConditionComboBox" Width="200" Margin="5" SelectionChanged="SurfaceConditionComboBox_SelectionChanged" />
                     </StackPanel>
 
-                    <!-- Row 2: DataGrid -->
-                    <DataGrid x:Name="leaderboardDataGrid" Grid.Row="1" AutoGenerateColumns="False" Margin="5">
+                    <!-- Row 3: DataGrid -->
+                    <DataGrid x:Name="leaderboardDataGrid" Grid.Row="2" AutoGenerateColumns="False" Margin="5" AlternationCount="2" IsReadOnly="True" RowHeight="40">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="{x:Type DataGridRow}">
+                                <Style.Triggers>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                        <Setter Property="Background" Value="#1E2032"/>
+                                    </Trigger>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                        <Setter Property="Background" Value="#151723"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#FFE3574E"/>
+                                    </Trigger>
+                                    <DataTrigger Binding="{Binding IsCurrentUser}" Value="True">
+                                        <Setter Property="Background" Value="#FF116D2C"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="POS." Binding="{Binding Position}" />
-                            <DataGridTextColumn Header="PLAYER" Binding="{Binding Player}" />
-                            <DataGridTextColumn Header="VEHICLE" Binding="{Binding Vehicle}" />
-                            <DataGridTextColumn Header="ASSISTS" Binding="{Binding Assists}" />
-                            <DataGridTextColumn Header="PENALTY" Binding="{Binding Penalty}" />
-                            <DataGridTextColumn Header="TIME" Binding="{Binding Time}" />
-                            <DataGridTextColumn Header="DIFF 1ST" Binding="{Binding DiffFirst}" />
-                            <DataGridTextColumn Header="Points" Binding="{Binding Points}" />
+                            <DataGridTextColumn Header="POS." Binding="{Binding Position}" Width="55" FontWeight="Bold" FontSize="16" />
+                            <DataGridTextColumn Header="PLAYER" Binding="{Binding Player}" Width="250" FontWeight="Bold" FontSize="16" />
+                            <DataGridTextColumn Header="VEHICLE" Binding="{Binding Vehicle}" Width="250" FontWeight="Normal" FontSize="14" />
+                            <DataGridTextColumn Header="ASSISTS" Binding="{Binding Assists}" Width="120" FontWeight="Normal" FontSize="14" />
+                            <DataGridTextColumn Header="PENALTY" Binding="{Binding Penalty}" Width="90" FontWeight="Normal" FontSize="14" />
+                            <DataGridTextColumn Header="TIME" Binding="{Binding Time}" Width="150" FontWeight="Bold" FontSize="16" />
+                            <DataGridTextColumn Header="DIFF 1ST" Binding="{Binding DiffFirst}" Width="150" FontWeight="Normal" FontSize="14" />
                         </DataGrid.Columns>
                     </DataGrid>
+                    <!-- Row 4: Page Buttons -->
+                    <StackPanel Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Center">
+                        <Button x:Name="previousPageButton" Content="Previous" Click="PreviousPageButton_Click" Width="100" Height="30" Margin="10"/>
+                        <Button x:Name="nextPageButton" Content="Next" Click="NextPageButton_Click" Width="100" Height="30" Margin="10"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Club">
-                <Grid>
-                    <!-- Add controls to display club info here... -->
+            <TabItem Header="Club" Margin="8,0,-8,0" FontFamily="Arial" FontSize="14">
+                <Grid Margin="0,0,0,-9">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Row 2: DataGrid -->
+                    <!-- Add your DataGrid here... -->
+                    <!-- Row 1: Label and ComboBox -->
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <Label Content="Club Name:"/>
+                        <ComboBox x:Name="clubNameComboBox" SelectionChanged="ClubNameComboBox_SelectionChanged" DropDownOpened="ClubNameComboBox_DropDownOpened" Width="343" Height="30"/>
+                    </StackPanel>
+
                 </Grid>
             </TabItem>
         </TabControl>
+        <Expander Header="Options" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="769,12,0,0">
+            <Button x:Name="openDialogButton" Content="Racenet Refresh Token" Click="OpenDialogButton_Click" Width="200" Height="45"/>
+        </Expander>
     </Grid>
 </UserControl>

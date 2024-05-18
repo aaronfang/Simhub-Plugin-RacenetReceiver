@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using SimHub;
 using Newtonsoft.Json.Linq;
 using System.Reflection.Emit;
+using System.Globalization;
 
 
 namespace Aaron.PluginRacenetReceiver
@@ -34,6 +35,11 @@ namespace Aaron.PluginRacenetReceiver
         private string selectedStage;
         private string selectedCarClass;
         private string selectedSurfaceCondition;
+        private dynamic currentLeaderboardData;
+        private int stageId;
+        private int vehicleClassId;
+        private int surfaceConditionId;
+        public string CurrentPlayerName { get; set; }
         //private readonly bool hasLoaded = false;
 
         public SettingsControl(RacenetDataReceiver plugin)
@@ -395,55 +401,112 @@ namespace Aaron.PluginRacenetReceiver
         // Define a class to represent a row in the leaderboardDataGrid
         public class LeaderboardRow
         {
-            public int Pos { get; set; }
+            public int Position { get; set; }
             public string Player { get; set; }
             public string Vehicle { get; set; }
-            public int Assists { get; set; }
+            public string Assists { get; set; }
             public string Penalty { get; set; }
             public string Time { get; set; }
-            public string Diff1st { get; set; }
+            public string DiffFirst { get; set; }
+            public bool IsCurrentUser { get; set; }
         }
 
         private void FillLeaderboardDataGrid(dynamic leaderboardData)
         {
+            // Update the current leaderboard data
+            currentLeaderboardData = leaderboardData;
+
+            // Get the current player's name
+            var personalInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.personalInfo"));
+            CurrentPlayerName = JObject.Parse(personalInfoData)["displayName"] != null ? JObject.Parse(personalInfoData)["displayName"].ToString() : string.Empty;
+            
             // Convert the leaderboardData to a list of LeaderboardRow
             List<LeaderboardRow> rows = new List<LeaderboardRow>();
             foreach (var entry in leaderboardData.entries)
             {
-                rows.Add(new LeaderboardRow
+                // Format Time and DiffFirst to limit to 12 characters
+                string time = entry.time != null ? (entry.time.ToString().Length > 12 ? entry.time.ToString().Substring(0, 12) : entry.time.ToString()) : string.Empty;
+                string diffFirst = entry.differenceToFirst != null ? (entry.differenceToFirst.ToString().Length > 12 ? entry.differenceToFirst.ToString().Substring(0, 12) : entry.differenceToFirst.ToString()) : string.Empty;
+
+                // Convert assistFlags from integer array to string array
+                int[] assistFlagsIntArray = entry.assistFlags.ToObject<int[]>();
+                string[] assistFlagsStrArray = Array.ConvertAll(assistFlagsIntArray, x => x.ToString()); 
+                
+                // Logging.Current.Info($"Rank: {entry.rank}, Player: {entry.displayName}, Vehicle: {entry.vehicle}, Assists: {entry.assistFlags.Count}, Penalty: {entry.timePenalty}, Time: {entry.time}, Diff1st: {entry.differenceToFirst}");
+                // Create a new LeaderboardRow
+                LeaderboardRow row = new LeaderboardRow
                 {
-                    Pos = entry.rank,
+                    Position = entry.rank,
                     Player = entry.displayName,
                     Vehicle = entry.vehicle,
-                    Assists = entry.assistFlags.Count,
+                    Assists = string.Join("- ", assistFlagsStrArray),
                     Penalty = entry.timePenalty,
-                    Time = entry.time,
-                    Diff1st = entry.differenceToFirst
-                });
+                    Time = time,
+                    DiffFirst = diffFirst, 
+                    IsCurrentUser = entry.displayName == CurrentPlayerName
+                };
+                rows.Add(row);
             }
 
             // Fill the leaderboardDataGrid with the rows
             leaderboardDataGrid.ItemsSource = rows;
         }
 
-        private void CheckAndFillLeaderboardDataGrid()
+        private async void CheckAndFillLeaderboardDataGrid()
         {
-            // // Check if all the combo boxes have a selected item
-            // if (stageComboBox.SelectedItem != null && carClassComboBox.SelectedItem != null && surfaceConditionComboBox.SelectedItem != null)
-            // {
-                
+            // Check if all the combo boxes have a selected item
+            if (stageComboBox.SelectedItem != null && carClassComboBox.SelectedItem != null && surfaceConditionComboBox.SelectedItem != null)
+            {
+                // Get the selected values
+                string selectedStage = stageComboBox.SelectedItem.ToString();
+                string selectedCarClass = carClassComboBox.SelectedItem.ToString();
+                string selectedSurfaceCondition = surfaceConditionComboBox.SelectedItem.ToString();
 
-            //     // Convert the selected values to the parameters needed for FetchTimeTrialLeaderboardDataAsync
-            //     int stageId = selectedStage;
-            //     int vehicleClassId = selectedCarClass;
-            //     int surfaceConditionId = selectedSurfaceCondition;
+                // Get the timeTrialPreInfoData
+                var timeTrialPreInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.timeTrialPreInfo"));
 
-            //     // Fetch the leaderboard data
-            //     var leaderboardData = await plugin.FetchTimeTrialLeaderboardDataAsync(stageId, vehicleClassId, surfaceConditionId);
+                // Create a JsonDataHelper instance
+                JsonDataHelper jsonDataHelper = new JsonDataHelper(timeTrialPreInfoData);
 
-            //     // Fill the leaderboardDataGrid with the fetched data
-            //     FillLeaderboardDataGrid(leaderboardData);
-            // }
+                // Convert the selected values to the parameters needed for FetchTimeTrialLeaderboardDataAsync
+                stageId = int.Parse(jsonDataHelper.GetKeyByValue(selectedStage));
+                vehicleClassId = int.Parse(jsonDataHelper.GetKeyByValue(selectedCarClass));
+                surfaceConditionId = int.Parse(jsonDataHelper.GetKeyByValue(selectedSurfaceCondition));
+
+                // Fetch the leaderboard data
+                var leaderboardData = await plugin.FetchTimeTrialLeaderboardDataAsync(stageId, vehicleClassId, surfaceConditionId);
+
+                // Update the current leaderboard data
+                currentLeaderboardData = leaderboardData;
+
+                // Fill the leaderboardDataGrid with the fetched data
+                FillLeaderboardDataGrid(leaderboardData);
+            }
+        }
+
+        private async void PreviousPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Get the previous cursor from the current leaderboard data
+            string previousCursor = currentLeaderboardData["previous"].ToString();
+
+            // Fetch the previous page of leaderboard data
+            var leaderboardData = await plugin.FetchTimeTrialLeaderboardDataAsync(stageId, vehicleClassId, surfaceConditionId, cursor:previousCursor);
+
+            // Fill the leaderboardDataGrid with the fetched data
+            FillLeaderboardDataGrid(leaderboardData);
+        }
+
+        private async void NextPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Get the next cursor from the current leaderboard data
+            string nextCursor = currentLeaderboardData["next"].ToString();
+            
+
+            // Fetch the next page of leaderboard data
+            var leaderboardData = await plugin.FetchTimeTrialLeaderboardDataAsync(stageId, vehicleClassId, surfaceConditionId, cursor:nextCursor);
+
+            // Fill the leaderboardDataGrid with the fetched data
+            FillLeaderboardDataGrid(leaderboardData);
         }
     }
 }

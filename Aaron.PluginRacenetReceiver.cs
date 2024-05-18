@@ -323,7 +323,7 @@ namespace Aaron.PluginRacenetReceiver
             throw new Exception($"Vehicle with id {vehicleId} not found.");
         }
 
-        private async Task<dynamic> FetchTimeTrialLeaderboardDataAsync(int stageId, int vehicleClassId, int surfaceConditionId, int maxResultCount = 20, bool focusOnMe = false, string cursor = null)
+        public async Task<dynamic> FetchTimeTrialLeaderboardDataAsync(int stageId, int vehicleClassId, int surfaceConditionId, int maxResultCount = 20, bool focusOnMe = false, string cursor = null)
         {
             string url = $"https://web-api.racenet.com/api/wrc2023Stats/leaderboard/{stageId}/{vehicleClassId}/{surfaceConditionId}?maxResultCount={maxResultCount}&focusOnMe={focusOnMe}&platform=0&cursor={cursor}";
             var headers = new Dictionary<string, string>
@@ -335,14 +335,14 @@ namespace Aaron.PluginRacenetReceiver
             var response = await SendGetRequestAsync(url, headers);
             if (response != null)
             {
-                if (surfaceConditionId == 0)
-                {
-                    Logging.Current.Info($"Leaderboard Data Fetched for Dry Condition.");
-                }
-                else
-                {
-                    Logging.Current.Info($"Leaderboard Data Fetched for Wet Condition.");
-                }
+                // if (surfaceConditionId == 0)
+                // {
+                //     Logging.Current.Info($"Leaderboard Data Fetched for Dry Condition.");
+                // }
+                // else
+                // {
+                //     Logging.Current.Info($"Leaderboard Data Fetched for Wet Condition.");
+                // }
                 return response;
             }
             else

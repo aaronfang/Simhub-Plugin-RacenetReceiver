@@ -50,10 +50,10 @@
 
                     <!-- Row 2: ComboBoxes -->
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
-                        <ComboBox x:Name="locationComboBox" Width="200" Margin="5" SelectionChanged="LocationComboBox_SelectionChanged" />
-                        <ComboBox x:Name="stageComboBox" Width="200" Margin="5" SelectionChanged="StageComboBox_SelectionChanged" />
-                        <ComboBox x:Name="carClassComboBox" Width="200" Margin="5" SelectionChanged="CarClassComboBox_SelectionChanged" />
-                        <ComboBox x:Name="surfaceConditionComboBox" Width="200" Margin="5" SelectionChanged="SurfaceConditionComboBox_SelectionChanged" />
+                        <ComboBox x:Name="locationComboBox" Width="250" Margin="5" SelectionChanged="LocationComboBox_SelectionChanged" />
+                        <ComboBox x:Name="stageComboBox" Width="250" Margin="5" SelectionChanged="StageComboBox_SelectionChanged" />
+                        <ComboBox x:Name="carClassComboBox" Width="250" Margin="5" SelectionChanged="CarClassComboBox_SelectionChanged" />
+                        <ComboBox x:Name="surfaceConditionComboBox" Width="250" Margin="5" SelectionChanged="SurfaceConditionComboBox_SelectionChanged" />
                     </StackPanel>
 
                     <!-- Row 3: DataGrid -->
@@ -80,7 +80,17 @@
                             <DataGridTextColumn Header="POS." Binding="{Binding Position}" Width="55" FontWeight="Bold" FontSize="16" />
                             <DataGridTextColumn Header="PLAYER" Binding="{Binding Player}" Width="250" FontWeight="Bold" FontSize="16" />
                             <DataGridTextColumn Header="VEHICLE" Binding="{Binding Vehicle}" Width="250" FontWeight="Normal" FontSize="14" />
-                            <DataGridTextColumn Header="ASSISTS" Binding="{Binding Assists}" Width="120" FontWeight="Normal" FontSize="14" />
+                            <DataGridTemplateColumn Header="ASSISTS">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding AssistIcons[0]}" Width="25" Height="25" Margin="3,0"/>
+                                            <Image Source="{Binding AssistIcons[1]}" Width="25" Height="25" Margin="3,0"/>
+                                            <Image Source="{Binding AssistIcons[2]}" Width="25" Height="25" Margin="3,0"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="PENALTY" Binding="{Binding Penalty}" Width="90" FontWeight="Normal" FontSize="14" />
                             <DataGridTextColumn Header="TIME" Binding="{Binding Time}" Width="150" FontWeight="Bold" FontSize="16" />
                             <DataGridTextColumn Header="DIFF 1ST" Binding="{Binding DiffFirst}" Width="150" FontWeight="Normal" FontSize="14" />

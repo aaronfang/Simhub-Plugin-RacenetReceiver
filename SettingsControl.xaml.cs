@@ -409,6 +409,8 @@ namespace Aaron.PluginRacenetReceiver
             public string Time { get; set; }
             public string DiffFirst { get; set; }
             public bool IsCurrentUser { get; set; }
+            // public List<BitmapImage> AssistIcons { get; set; }
+            public BitmapImage[] AssistIcons { get; set; }
         }
 
         private void FillLeaderboardDataGrid(dynamic leaderboardData)
@@ -440,6 +442,7 @@ namespace Aaron.PluginRacenetReceiver
                     Player = entry.displayName,
                     Vehicle = entry.vehicle,
                     Assists = string.Join("- ", assistFlagsStrArray),
+                    AssistIcons = GetAssistIcons(assistFlagsIntArray),
                     Penalty = entry.timePenalty,
                     Time = time,
                     DiffFirst = diffFirst, 
@@ -507,6 +510,27 @@ namespace Aaron.PluginRacenetReceiver
 
             // Fill the leaderboardDataGrid with the fetched data
             FillLeaderboardDataGrid(leaderboardData);
+        }
+        
+        private BitmapImage[] GetAssistIcons(int[] assistFlags)
+        {
+            BitmapImage[] icons = new BitmapImage[3];
+            foreach (int flag in assistFlags)
+            {
+                switch (flag)
+                {
+                    case 1:
+                        icons[0] = new BitmapImage(new Uri(@"C:\Projects\Simhub-Plugin-RacenetReceiver\icons\1.png"));
+                        break;
+                    case 2:
+                        icons[1] = new BitmapImage(new Uri(@"C:\Projects\Simhub-Plugin-RacenetReceiver\icons\2.png"));
+                        break;
+                    case 4:
+                        icons[2] = new BitmapImage(new Uri(@"C:\Projects\Simhub-Plugin-RacenetReceiver\icons\4.png"));
+                        break;
+                }
+            }
+            return icons;
         }
     }
 }

@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:Aaron.PluginRacenetReceiver"
     xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" xmlns:Custom="http://metro.mahapps.com/winfx/xaml/controls" x:Class="Aaron.PluginRacenetReceiver.SettingsControl"
     mc:Ignorable="d" 
-    d:DesignHeight="1000" d:DesignWidth="992">
+    d:DesignHeight="1000" d:DesignWidth="1155">
 
     <UserControl.Resources>
         <Style TargetType="Button">
@@ -50,14 +50,21 @@
 
                     <!-- Row 2: ComboBoxes -->
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
-                        <ComboBox x:Name="locationComboBox" Width="250" Margin="5" SelectionChanged="LocationComboBox_SelectionChanged" />
-                        <ComboBox x:Name="stageComboBox" Width="250" Margin="5" SelectionChanged="StageComboBox_SelectionChanged" />
-                        <ComboBox x:Name="carClassComboBox" Width="250" Margin="5" SelectionChanged="CarClassComboBox_SelectionChanged" />
-                        <ComboBox x:Name="surfaceConditionComboBox" Width="250" Margin="5" SelectionChanged="SurfaceConditionComboBox_SelectionChanged" />
+                        <ComboBox x:Name="locationComboBox" Width="273" Margin="5" SelectionChanged="LocationComboBox_SelectionChanged" />
+                        <ComboBox x:Name="stageComboBox" Width="273" Margin="5" SelectionChanged="StageComboBox_SelectionChanged" />
+                        <ComboBox x:Name="carClassComboBox" Width="273" Margin="5" SelectionChanged="CarClassComboBox_SelectionChanged" />
+                        <ComboBox x:Name="surfaceConditionComboBox" Width="273" Margin="5" SelectionChanged="SurfaceConditionComboBox_SelectionChanged" />
                     </StackPanel>
 
                     <!-- Row 3: DataGrid -->
-                    <DataGrid x:Name="leaderboardDataGrid" Grid.Row="2" AutoGenerateColumns="False" Margin="5" AlternationCount="2" IsReadOnly="True" RowHeight="40">
+                    <DataGrid x:Name="leaderboardDataGrid" Grid.Row="2" AutoGenerateColumns="False" Margin="5" AlternationCount="2" IsReadOnly="True" RowHeight="40" BorderBrush="Black" BorderThickness="2">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Height" Value="50"/>
+                                <Setter Property="Background" Value="Black"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.RowStyle>
                             <Style TargetType="{x:Type DataGridRow}">
                                 <Style.Triggers>
@@ -77,10 +84,99 @@
                             </Style>
                         </DataGrid.RowStyle>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="POS." Binding="{Binding Position}" Width="55" FontWeight="Bold" FontSize="16" />
-                            <DataGridTextColumn Header="PLAYER" Binding="{Binding Player}" Width="250" FontWeight="Bold" FontSize="16" />
-                            <DataGridTextColumn Header="VEHICLE" Binding="{Binding Vehicle}" Width="250" FontWeight="Normal" FontSize="14" />
-                            <DataGridTemplateColumn Header="ASSISTS">
+                            <DataGridTextColumn Header="POS." Binding="{Binding Position}" Width="55" FontWeight="Bold" FontSize="16">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="PLAYER" Binding="{Binding Player}" Width="250" FontWeight="Bold" FontSize="16">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="20,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="10,0,0,0"/>
+                                        <Setter Property="TextAlignment" Value="Left"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="NATION" Binding="{Binding Nation}" Width="80" FontWeight="Bold" FontSize="16">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="VEHICLE" Binding="{Binding Vehicle}" Width="250" FontWeight="Normal" FontSize="14">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="10,0,0,0"/>
+                                        <Setter Property="TextAlignment" Value="Left"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="ASSISTS" Width="120">
+                                <DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
@@ -91,9 +187,63 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="PENALTY" Binding="{Binding Penalty}" Width="90" FontWeight="Normal" FontSize="14" />
-                            <DataGridTextColumn Header="TIME" Binding="{Binding Time}" Width="150" FontWeight="Bold" FontSize="16" />
-                            <DataGridTextColumn Header="DIFF 1ST" Binding="{Binding DiffFirst}" Width="150" FontWeight="Normal" FontSize="14" />
+                            <DataGridTextColumn Header="PENALTY" Binding="{Binding Penalty}" Width="100" FontWeight="Normal" FontSize="14">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="TIME" Binding="{Binding Time}" Width="150" FontWeight="Bold" FontSize="16">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="0,0,10,0"/>
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="DIFF 1ST" Binding="{Binding DiffFirst}" Width="120" FontWeight="Bold" FontSize="16">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="0,0,10,0"/>
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                     <!-- Row 4: Page Buttons -->

@@ -19,6 +19,7 @@ using SimHub;
 using Newtonsoft.Json.Linq;
 using System.Reflection.Emit;
 using System.Globalization;
+using System.Reflection;
 
 
 namespace Aaron.PluginRacenetReceiver
@@ -403,6 +404,7 @@ namespace Aaron.PluginRacenetReceiver
         {
             public int Position { get; set; }
             public string Player { get; set; }
+            public string Nation { get; set; }
             public string Vehicle { get; set; }
             public string Assists { get; set; }
             public string Penalty { get; set; }
@@ -426,20 +428,20 @@ namespace Aaron.PluginRacenetReceiver
             List<LeaderboardRow> rows = new List<LeaderboardRow>();
             foreach (var entry in leaderboardData.entries)
             {
-                // Format Time and DiffFirst to limit to 12 characters
-                string time = entry.time != null ? (entry.time.ToString().Length > 12 ? entry.time.ToString().Substring(0, 12) : entry.time.ToString()) : string.Empty;
-                string diffFirst = entry.differenceToFirst != null ? (entry.differenceToFirst.ToString().Length > 12 ? entry.differenceToFirst.ToString().Substring(0, 12) : entry.differenceToFirst.ToString()) : string.Empty;
+                string time = entry.time != null ? FormatTime(entry.time.ToString()) : string.Empty;
+                string diffFirst = entry.differenceToFirst != null ? FormatDiffTime(entry.differenceToFirst.ToString()) : string.Empty;
+                // string penalty = entry.timePenalty != null ? FormatTime(entry.timePenalty.ToString()) : string.Empty;
 
                 // Convert assistFlags from integer array to string array
                 int[] assistFlagsIntArray = entry.assistFlags.ToObject<int[]>();
                 string[] assistFlagsStrArray = Array.ConvertAll(assistFlagsIntArray, x => x.ToString()); 
                 
-                // Logging.Current.Info($"Rank: {entry.rank}, Player: {entry.displayName}, Vehicle: {entry.vehicle}, Assists: {entry.assistFlags.Count}, Penalty: {entry.timePenalty}, Time: {entry.time}, Diff1st: {entry.differenceToFirst}");
                 // Create a new LeaderboardRow
                 LeaderboardRow row = new LeaderboardRow
                 {
                     Position = entry.rank,
                     Player = entry.displayName,
+                    Nation = entry.nationalityID,
                     Vehicle = entry.vehicle,
                     Assists = string.Join("- ", assistFlagsStrArray),
                     AssistIcons = GetAssistIcons(assistFlagsIntArray),
@@ -453,6 +455,81 @@ namespace Aaron.PluginRacenetReceiver
 
             // Fill the leaderboardDataGrid with the rows
             leaderboardDataGrid.ItemsSource = rows;
+        }
+
+        private string FormatTime(string timeStr)
+        {
+            TimeSpan timeSpan = TimeSpan.Parse(timeStr);
+
+            // If the time is less than one second, only display the milliseconds
+            if (timeSpan.TotalSeconds < 1)
+            {
+                return "0." + timeSpan.Milliseconds.ToString("D3").Substring(0, 3);
+            }
+            // If the time is less than one minute, only display the seconds and milliseconds
+            else if (timeSpan.TotalMinutes < 1)
+            {
+                return string.Format("{0}.{1}", 
+                    timeSpan.Seconds.ToString("D2"), 
+                    timeSpan.Milliseconds.ToString("D3").Substring(0, 3));
+            }
+            // If the time is less than one hour, only display the minutes, seconds, and milliseconds
+            else if (timeSpan.TotalHours < 1)
+            {
+                return string.Format("{0}:{1}.{2}", 
+                    timeSpan.Minutes.ToString("D2"), 
+                    timeSpan.Seconds.ToString("D2"), 
+                    timeSpan.Milliseconds.ToString("D3").Substring(0, 3));
+            }
+            // Otherwise, display the hours, minutes, seconds, and milliseconds
+            else
+            {
+                return string.Format("{0}:{1}:{2}.{3}", 
+                    timeSpan.Hours.ToString(), 
+                    timeSpan.Minutes.ToString("D2"), 
+                    timeSpan.Seconds.ToString("D2"), 
+                    timeSpan.Milliseconds.ToString("D3").Substring(0, 3));
+            }
+        }
+
+        private string FormatDiffTime(string timeStr)
+        {
+            TimeSpan timeSpan = TimeSpan.Parse(timeStr);
+
+            // If the time is exactly zero, display "="
+            if (timeSpan.TotalSeconds == 0)
+            {
+                return "=";
+            }
+            // If the time is less than one second, display "0." followed by the milliseconds
+            else if (timeSpan.TotalSeconds < 1)
+            {
+                return "+ 0." + timeSpan.Milliseconds.ToString("D3").Substring(0, 3);
+            }
+            // If the time is less than one minute, only display the seconds and milliseconds
+            else if (timeSpan.TotalMinutes < 1)
+            {
+                return string.Format("+ {0}.{1}", 
+                    timeSpan.Seconds.ToString("D2"), 
+                    timeSpan.Milliseconds.ToString("D3").Substring(0, 3));
+            }
+            // If the time is less than one hour, only display the minutes, seconds, and milliseconds
+            else if (timeSpan.TotalHours < 1)
+            {
+                return string.Format("+ {0}:{1}.{2}", 
+                    timeSpan.Minutes.ToString("D2"), 
+                    timeSpan.Seconds.ToString("D2"), 
+                    timeSpan.Milliseconds.ToString("D3").Substring(0, 3));
+            }
+            // Otherwise, display the hours, minutes, seconds, and milliseconds
+            else
+            {
+                return string.Format("+ {0}:{1}:{2}.{3}", 
+                    timeSpan.Hours.ToString(), 
+                    timeSpan.Minutes.ToString("D2"), 
+                    timeSpan.Seconds.ToString("D2"), 
+                    timeSpan.Milliseconds.ToString("D3").Substring(0, 3));
+            }
         }
 
         private async void CheckAndFillLeaderboardDataGrid()
@@ -514,23 +591,40 @@ namespace Aaron.PluginRacenetReceiver
         
         private BitmapImage[] GetAssistIcons(int[] assistFlags)
         {
-            BitmapImage[] icons = new BitmapImage[3];
+            // Set default icons
+            BitmapImage[] icons = new BitmapImage[3]
+            {
+                LoadImageFromResources("Aaron.PluginRacenetReceiver.icons.0_1.png"),
+                LoadImageFromResources("Aaron.PluginRacenetReceiver.icons.0_2.png"),
+                LoadImageFromResources("Aaron.PluginRacenetReceiver.icons.0_4.png")
+            };
+
             foreach (int flag in assistFlags)
             {
                 switch (flag)
                 {
                     case 1:
-                        icons[0] = new BitmapImage(new Uri(@"C:\Projects\Simhub-Plugin-RacenetReceiver\icons\1.png"));
+                        icons[0] = LoadImageFromResources("Aaron.PluginRacenetReceiver.icons.1.png");
                         break;
                     case 2:
-                        icons[1] = new BitmapImage(new Uri(@"C:\Projects\Simhub-Plugin-RacenetReceiver\icons\2.png"));
+                        icons[1] = LoadImageFromResources("Aaron.PluginRacenetReceiver.icons.2.png");
                         break;
                     case 4:
-                        icons[2] = new BitmapImage(new Uri(@"C:\Projects\Simhub-Plugin-RacenetReceiver\icons\4.png"));
+                        icons[2] = LoadImageFromResources("Aaron.PluginRacenetReceiver.icons.4.png");
                         break;
                 }
             }
             return icons;
+        }
+
+        private BitmapImage LoadImageFromResources(string resourcePath)
+        {
+            var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.StreamSource = stream;
+            image.EndInit();
+            return image;
         }
     }
 }

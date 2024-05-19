@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <EmbeddedResource Include="nationalityID.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +124,118 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="icons\0_1.png" />
+    <EmbeddedResource Include="icons\0_2.png" />
+    <EmbeddedResource Include="icons\0_4.png" />
+    <EmbeddedResource Include="icons\1.png" />
+    <EmbeddedResource Include="icons\2.png" />
+    <EmbeddedResource Include="icons\4.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_AbuDhabi.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Argentina.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Australia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Austria.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Azerbaijan.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Bahrain.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Barbados.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Belgium.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Bolivia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Brazil.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Bulgaria.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Cameroon.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Canada.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Catalunya.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Chile.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_China.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Colombia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_CostaRica.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Croatia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Cyprus.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_CzechRepublic.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Denmark.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Earth.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Ecuador.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_ElSalvador.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_England.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Estonia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_EU.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Finland.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_France.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Germany.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Ghana.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Greece.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Guatemala.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Guernsey.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Honduras.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_HongKong.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Hungary.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Iceland.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_India.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Indonesia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Ireland.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_IsleOfMan.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Israel.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Italy.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_IvoryCoast.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Jamaica.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Japan.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Jersey.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Jordan.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Kenya.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Kuwait.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Latvia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Lebanon.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Lithuania.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Luxemburg.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Malaysia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Malta.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Mexico.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Monaco.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Netherlands.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_NewZealand.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Nicaragua.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Nigeria.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_NorthernIreland.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_NorthKorea.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Norway.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Oman.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Pakistan.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Palestine.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Panama.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Paraguay.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Peru.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Poland.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Portugal.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_PuertoRico.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Qatar.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Romania.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Russia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_SaudiArabia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Scotland.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Serbia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Singapore.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Slovakia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Slovenia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_SouthAfrica.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_SouthKorea.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Spain.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Sweden.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Switzerland.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Taiwan.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Thailand.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Turkey.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_UAE.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Ukraine.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_UnitedKingdom.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Uruguay.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_USA.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Venezuela.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Wales.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Yemen.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Zambia.png" />
+    <EmbeddedResource Include="icons\flags\T_NF_Zimbabwe.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

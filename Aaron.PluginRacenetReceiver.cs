@@ -31,6 +31,7 @@ namespace Aaron.PluginRacenetReceiver
         public string ClubName { get; set; }
         private dynamic timeTrialPreInfo;
         private dynamic personalInfo;
+        private dynamic clubChampionshipInfo;
         public List<dynamic> ClubListData { get; private set; }
         private string curGame;
         private string vehicleId;
@@ -89,8 +90,6 @@ namespace Aaron.PluginRacenetReceiver
                     {
                         Logging.Current.Info($"Error parsing trackId: {ex.Message}");
                     }
-
-                    
                 }
                 
             }
@@ -104,6 +103,7 @@ namespace Aaron.PluginRacenetReceiver
             pluginManager.AddProperty("Racenet.rawData.clubListData", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.leaderboard.dry", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.leaderboard.wet", this.GetType(), "-");
+            pluginManager.AddProperty("Racenet.rawData.clubChampionshipInfo", this.GetType(), "-");
 
             // Load settings from file
             if (File.Exists("settings.json"))
@@ -226,6 +226,7 @@ namespace Aaron.PluginRacenetReceiver
                     await FetchTimeTrialPreInfo();
                     await FetchPersonalInfo();
                     await FetchClubListAsync();
+
                 }
             }
         }
@@ -350,6 +351,22 @@ namespace Aaron.PluginRacenetReceiver
                 Logging.Current.Info("Error: Response is null or empty");
                 return null;
             }
+        }
+
+        public async Task FetchClubChampionshipInfoAsync(string clubID)
+        {
+            string url = $"https://web-api.racenet.com/api/wrc2023clubs/{clubID}?includeChampionship=true";
+            var headers = new Dictionary<string, string>
+            {
+                { "Authorization", $"Bearer {access_token}" },
+                { "User-Agent", "Apifox/1.0.0 (https://apifox.com)" }
+            };
+
+            var response = await SendGetRequestAsync(url, headers);
+            clubChampionshipInfo = response;
+            string clubChampionshipInfoJson = JsonConvert.SerializeObject(response, Formatting.Indented);
+            PluginManager.SetPropertyValue("Racenet.rawData.clubChampionshipInfo", this.GetType(), clubChampionshipInfoJson);
+            Logging.Current.Info($"Club:{clubID} Championship Info Data Fetched.");
         }
     }
 

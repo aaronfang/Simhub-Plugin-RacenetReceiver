@@ -41,26 +41,26 @@
                     </Grid.RowDefinitions>
 
                     <!-- Row 1: Labels -->
-                    <StackPanel Orientation="Horizontal" Grid.Row="0">
-                        <Label Content="Location" Width="200" Margin="5" />
-                        <Label Content="Stage" Width="200" Margin="5" />
-                        <Label Content="Car Class" Width="200" Margin="5" />
-                        <Label Content="Surface Condition" Width="200" Margin="5" />
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Center">
+                        <Label Content="Location" Width="275" Margin="5" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom"/>
+                        <Label Content="Stage" Width="275" Margin="5" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom"/>
+                        <Label Content="Car Class" Width="275" Margin="5" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom"/>
+                        <Label Content="Surface Condition" Width="275" Margin="5" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom"/>
                     </StackPanel>
 
                     <!-- Row 2: ComboBoxes -->
-                    <StackPanel Orientation="Horizontal" Grid.Row="1">
-                        <ComboBox x:Name="locationComboBox" Width="273" Margin="5" SelectionChanged="LocationComboBox_SelectionChanged" />
-                        <ComboBox x:Name="stageComboBox" Width="273" Margin="5" SelectionChanged="StageComboBox_SelectionChanged" />
-                        <ComboBox x:Name="carClassComboBox" Width="273" Margin="5" SelectionChanged="CarClassComboBox_SelectionChanged" />
-                        <ComboBox x:Name="surfaceConditionComboBox" Width="273" Margin="5" SelectionChanged="SurfaceConditionComboBox_SelectionChanged" />
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" >
+                        <ComboBox x:Name="locationComboBox" Width="275" Height="40" Margin="5" SelectionChanged="LocationComboBox_SelectionChanged" VerticalContentAlignment="Center" />
+                        <ComboBox x:Name="stageComboBox" Width="275" Margin="5" SelectionChanged="StageComboBox_SelectionChanged" VerticalContentAlignment="Center" />
+                        <ComboBox x:Name="carClassComboBox" Width="275" Margin="5" SelectionChanged="CarClassComboBox_SelectionChanged" VerticalContentAlignment="Center" />
+                        <ComboBox x:Name="surfaceConditionComboBox" Width="275" Margin="5" SelectionChanged="SurfaceConditionComboBox_SelectionChanged" VerticalContentAlignment="Center" />
                     </StackPanel>
 
                     <!-- Row 3: DataGrid -->
                     <DataGrid x:Name="leaderboardDataGrid" Grid.Row="2" AutoGenerateColumns="False" Margin="5" AlternationCount="2" IsReadOnly="True" RowHeight="40" BorderBrush="Black" BorderThickness="2">
                         <DataGrid.ColumnHeaderStyle>
                             <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Height" Value="50"/>
+                                <Setter Property="Height" Value="40"/>
                                 <Setter Property="Background" Value="Black"/>
                                 <Setter Property="HorizontalContentAlignment" Value="Left"/>
                             </Style>
@@ -78,7 +78,7 @@
                                         <Setter Property="Background" Value="#FFE3574E"/>
                                     </Trigger>
                                     <DataTrigger Binding="{Binding IsCurrentUser}" Value="True">
-                                        <Setter Property="Background" Value="#FF116D2C"/>
+                                        <Setter Property="Background" Value="#FF1383B3"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -87,7 +87,7 @@
                             <DataGridTextColumn Header="POS." Binding="{Binding Position}" Width="55" FontWeight="Bold" FontSize="16">
                                 <DataGridTextColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Height" Value="40"/>
                                         <Setter Property="Background" Value="Black"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                         <Setter Property="Padding" Value="0,0,0,0"/>
@@ -103,10 +103,28 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="NATION" Width="70">
+                                <DataGridTemplateColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Height" Value="40"/>
+                                            <Setter Property="Background" Value="Black"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Padding" Value="0,0,0,0"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                            <Setter Property="BorderBrush" Value="#FF737373"/>
+                                            <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                        </Style>
+                                    </DataGridTemplateColumn.HeaderStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding NationFlag}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="PLAYER" Binding="{Binding Player}" Width="250" FontWeight="Bold" FontSize="16">
                                 <DataGridTextColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Height" Value="40"/>
                                         <Setter Property="Background" Value="Black"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                         <Setter Property="Padding" Value="20,0,0,0"/>
@@ -122,29 +140,10 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="NATION" Binding="{Binding Nation}" Width="80" FontWeight="Bold" FontSize="16">
-                                <DataGridTextColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="50"/>
-                                        <Setter Property="Background" Value="Black"/>
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                        <Setter Property="Padding" Value="0,0,0,0"/>
-                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                        <Setter Property="BorderBrush" Value="#FF737373"/>
-                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
-                                    </Style>
-                                </DataGridTextColumn.HeaderStyle>
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Padding" Value="0,0,0,0"/>
-                                        <Setter Property="TextAlignment" Value="Center"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
                             <DataGridTextColumn Header="VEHICLE" Binding="{Binding Vehicle}" Width="250" FontWeight="Normal" FontSize="14">
                                 <DataGridTextColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Height" Value="40"/>
                                         <Setter Property="Background" Value="Black"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                         <Setter Property="Padding" Value="0,0,0,0"/>
@@ -163,7 +162,7 @@
                             <DataGridTemplateColumn Header="ASSISTS" Width="120">
                                 <DataGridTemplateColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Height" Value="40"/>
                                         <Setter Property="Background" Value="Black"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                         <Setter Property="Padding" Value="0,0,0,0"/>
@@ -190,7 +189,7 @@
                             <DataGridTextColumn Header="PENALTY" Binding="{Binding Penalty}" Width="100" FontWeight="Normal" FontSize="14">
                                 <DataGridTextColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Height" Value="40"/>
                                         <Setter Property="Background" Value="Black"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                         <Setter Property="Padding" Value="0,0,0,0"/>
@@ -209,7 +208,7 @@
                             <DataGridTextColumn Header="TIME" Binding="{Binding Time}" Width="150" FontWeight="Bold" FontSize="16">
                                 <DataGridTextColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Height" Value="40"/>
                                         <Setter Property="Background" Value="Black"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                         <Setter Property="Padding" Value="0,0,0,0"/>
@@ -228,7 +227,7 @@
                             <DataGridTextColumn Header="DIFF 1ST" Binding="{Binding DiffFirst}" Width="120" FontWeight="Bold" FontSize="16">
                                 <DataGridTextColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="50"/>
+                                        <Setter Property="Height" Value="40"/>
                                         <Setter Property="Background" Value="Black"/>
                                         <Setter Property="FontWeight" Value="Bold"/>
                                         <Setter Property="Padding" Value="0,0,0,0"/>
@@ -271,7 +270,7 @@
                 </Grid>
             </TabItem>
         </TabControl>
-        <Expander Header="Options" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="769,12,0,0">
+        <Expander Header="Input Token" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="933,14,0,0">
             <Button x:Name="openDialogButton" Content="Racenet Refresh Token" Click="OpenDialogButton_Click" Width="200" Height="45"/>
         </Expander>
     </Grid>

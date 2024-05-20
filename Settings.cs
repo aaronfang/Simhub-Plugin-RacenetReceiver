@@ -10,6 +10,7 @@ namespace Aaron.PluginRacenetReceiver
     {
         public string RefreshToken { get; set; }
         public string ClubName { get; set; }
+        public string ClubID { get; set; }
         public string SelectedLocation { get; set; }
         public string SelectedStage { get; set; }
         public string SelectedCarClass { get; set; }

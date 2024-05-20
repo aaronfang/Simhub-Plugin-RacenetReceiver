@@ -34,6 +34,7 @@ namespace Aaron.PluginRacenetReceiver
         // Add fields to save user's selections
         private string selectedLocation;
         private string selectedStage;
+        private string currentSelectedStage;
         private string selectedCarClass;
         private string selectedSurfaceCondition;
         private dynamic currentLeaderboardData;
@@ -63,9 +64,23 @@ namespace Aaron.PluginRacenetReceiver
                 };
             }
 
+            if (!string.IsNullOrEmpty(plugin.Settings.SelectedStage))
+            {
+                currentSelectedStage = plugin.Settings.SelectedStage;
+            }
+
             FillClubList();
 
             plugin.RefreshToken = plugin.Settings.RefreshToken;
+
+            // If ClubID is not empty, fetch club championship info
+            if (!string.IsNullOrEmpty(plugin.Settings.ClubID))
+            {
+                Task.Run(async () =>
+                {
+                    await plugin.FetchClubChampionshipInfoAsync(plugin.Settings.ClubID);
+                });
+            }
 
             // Attach the Loaded event handler
             this.Loaded += SettingsControl_Loaded;
@@ -138,11 +153,19 @@ namespace Aaron.PluginRacenetReceiver
         {
             if(locationComboBox.SelectedItem == null) return;
 
+            // Save the current selected stage before changing the location
+            if (stageComboBox.SelectedItem != null)
+            {
+                currentSelectedStage = stageComboBox.SelectedItem.ToString();
+            }
+
             string selectedLocation = locationComboBox.SelectedItem.ToString();
 
             // Save the user's selection
             this.selectedLocation = selectedLocation;
             plugin.Settings.SelectedLocation = selectedLocation;
+
+            // Reset the selected stage in the settings
             plugin.Settings.SelectedStage = null;
 
             FillStageComboBox(selectedLocation);
@@ -183,21 +206,26 @@ namespace Aaron.PluginRacenetReceiver
                 stageComboBox.Items.Add(routeName);
             }
 
-            // Check if there is a selected stage in the settings
-            if (plugin.Settings.SelectedStage != null)
+             // Try to restore the selected stage after filling the stageComboBox
+            if (!string.IsNullOrEmpty(currentSelectedStage))
             {
                 foreach (var item in stageComboBox.Items)
                 {
-                    if (item.ToString() == plugin.Settings.SelectedStage)
+                    if (item.ToString() == currentSelectedStage)
                     {
                         stageComboBox.SelectedItem = item;
                         break;
                     }
-                }         
+                }
             }
             else if (stageComboBox.HasItems)
             {
                 // Set the default selected item
+                stageComboBox.SelectedIndex = 0;
+            }
+            // If no item is selected, select the first item
+            if (stageComboBox.SelectedItem == null && stageComboBox.HasItems)
+            {
                 stageComboBox.SelectedIndex = 0;
             }
         }
@@ -323,7 +351,7 @@ namespace Aaron.PluginRacenetReceiver
                 var idx = 0;
                 foreach (var club in sortedClubList)
                 {
-                    clubNameComboBox.Items.Add(club.clubName);
+                    clubNameComboBox.Items.Add(new{club.clubName, club.clubID});
                     if(club.clubName == plugin.Settings.ClubName)
                     {
                         selectedIndex = idx;
@@ -331,7 +359,8 @@ namespace Aaron.PluginRacenetReceiver
                     idx++;
                 }
 
-
+                // Set the DisplayMemberPath to "clubName" to only display the club name
+                clubNameComboBox.DisplayMemberPath = "clubName";
 
                 // Set the selected item to the saved club name
                 clubNameComboBox.SelectedIndex = selectedIndex;
@@ -357,13 +386,24 @@ namespace Aaron.PluginRacenetReceiver
 
         private void ClubNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(clubNameComboBox.SelectedItem == null) return;
+            if (clubNameComboBox.SelectedItem == null) return;
 
-            string clubName = clubNameComboBox.SelectedItem.ToString();
+            // string clubName = clubNameComboBox.SelectedItem.ToString();
+            var selectedItem = (dynamic)clubNameComboBox.SelectedItem;
+            string clubName = selectedItem.clubName;
+            string clubID = selectedItem.clubID;
+
             plugin.Settings.ClubName = clubName;
+            plugin.Settings.ClubID = clubID;
             plugin.Settings.RefreshToken = plugin.RefreshToken;
             plugin.ClubName = clubName;
             SaveSettings();
+
+            // Fetch the club championship info
+            Task.Run(async () =>
+            {
+                await plugin.FetchClubChampionshipInfoAsync(clubID);
+            });
 
             // Log the selected club name
             Logging.Current.Info($"Selected Club Name: {clubName}");
@@ -405,6 +445,7 @@ namespace Aaron.PluginRacenetReceiver
             public int Position { get; set; }
             public string Player { get; set; }
             public string Nation { get; set; }
+            public BitmapImage NationFlag { get; set; }
             public string Vehicle { get; set; }
             public string Assists { get; set; }
             public string Penalty { get; set; }
@@ -442,6 +483,7 @@ namespace Aaron.PluginRacenetReceiver
                     Position = entry.rank,
                     Player = entry.displayName,
                     Nation = entry.nationalityID,
+                    NationFlag = GetNationFlag(entry.nationalityID.ToString()),
                     Vehicle = entry.vehicle,
                     Assists = string.Join("- ", assistFlagsStrArray),
                     AssistIcons = GetAssistIcons(assistFlagsIntArray),
@@ -455,6 +497,29 @@ namespace Aaron.PluginRacenetReceiver
 
             // Fill the leaderboardDataGrid with the rows
             leaderboardDataGrid.ItemsSource = rows;
+        }
+
+        private BitmapImage GetNationFlag(string nationalityId)
+        {
+            {
+                // Load the JSON file
+                string json = LoadJsonFromResources("Aaron.PluginRacenetReceiver.nationalityID.json");
+
+                // Parse the JSON file
+                var jsonObject = JObject.Parse(json);
+
+                // Get the image file name
+                string imageFileName = (string)jsonObject[nationalityId];
+
+                // Load the image from resources
+                if (imageFileName == null)
+                {
+                    return null;
+                }
+                BitmapImage image = LoadImageFromResources($"Aaron.PluginRacenetReceiver.icons.flags.{imageFileName}");
+
+                return image;
+            }
         }
 
         private string FormatTime(string timeStr)
@@ -625,6 +690,23 @@ namespace Aaron.PluginRacenetReceiver
             image.StreamSource = stream;
             image.EndInit();
             return image;
+        }
+
+        private string LoadJsonFromResources(string resourcePath)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            using (var stream = assembly.GetManifestResourceStream(resourcePath))
+            {
+                if (stream == null)
+                {
+                    throw new Exception($"Could not find resource {resourcePath}");
+                }
+
+                using (var reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
         }
     }
 }

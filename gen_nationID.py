@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 # 指定的目录
 directory1 = r"C:\FModel\Output\Exports\WRC\Content\WRC\Data\Nationality"
-directory2 = r"C:\Projects\Simhub-Plugin-RacenetReceiver\icons\NationalityFlags"
+directory2 = r"C:\Projects\Simhub-Plugin-RacenetReceiver\icons\flags"
 
 # 创建一个空字典来存储文件名
 file_dict = {}
@@ -14,6 +14,7 @@ for filename in os.listdir(directory1):
     # 提取id和国家名
     id_and_country = filename.replace('CDA_Nationality_', '').replace('.json', '')
     id, country = id_and_country.split('_', 1)
+    country = country.replace('_', '')  # 去掉下划线
 
     # 遍历第二个目录中的所有文件
     for flag_filename in os.listdir(directory2):

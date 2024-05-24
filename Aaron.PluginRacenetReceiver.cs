@@ -336,14 +336,6 @@ namespace Aaron.PluginRacenetReceiver
             var response = await SendGetRequestAsync(url, headers);
             if (response != null)
             {
-                // if (surfaceConditionId == 0)
-                // {
-                //     Logging.Current.Info($"Leaderboard Data Fetched for Dry Condition.");
-                // }
-                // else
-                // {
-                //     Logging.Current.Info($"Leaderboard Data Fetched for Wet Condition.");
-                // }
                 return response;
             }
             else

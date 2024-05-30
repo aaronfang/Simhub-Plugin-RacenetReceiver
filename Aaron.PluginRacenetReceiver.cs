@@ -102,7 +102,7 @@ namespace Aaron.PluginRacenetReceiver
                     if ((DateTime.Now - lastFetchTimeForClubChampionship).TotalMinutes >= 1 || newTrackId != previousTrackId)
                     {
                         previousTrackId = newTrackId;
-                        Logging.Current.Info($"New TrackID: {newTrackId}. Fetching Leaderboard...");
+                        
                         lastFetchTimeForClubChampionship = DateTime.Now;
 
                         // Fetch club championship leaderboard data
@@ -123,19 +123,6 @@ namespace Aaron.PluginRacenetReceiver
                                 Logging.Current.Error($"Error in Task.Run: {ex.Message}");
                             }
                         });
-
-                        // Task.Run(async () =>
-                        // {
-                        //     try
-                        //     {
-                        //         var allLeaderboardsData = await FetchAllLeaderboardsByLocationAsync(Settings.ClubID, trackId.Split('_')[0]);
-                        //         PluginManager.SetPropertyValue("Racenet.formatedData.clubAllLeaderboardCurrentLocation", this.GetType(), JsonConvert.SerializeObject(allLeaderboardsData, Formatting.Indented));
-                        //     }
-                        //     catch (Exception ex)
-                        //     {
-                        //         Logging.Current.Error($"Error in Task.Run: {ex.Message}");
-                        //     }
-                        // });
                     }
                 }
                 else
@@ -155,7 +142,6 @@ namespace Aaron.PluginRacenetReceiver
             pluginManager.AddProperty("Racenet.rawData.leaderboard.wet", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.clubChampionshipInfo", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.clubLeaderboardCurrentStage", this.GetType(), "-");
-            // pluginManager.AddProperty("Racenet.formatedData.clubAllLeaderboardCurrentLocation", this.GetType(), "-");
 
             // Load settings from file
             if (File.Exists("settings.json"))
@@ -479,85 +465,6 @@ namespace Aaron.PluginRacenetReceiver
             else
             {
                 Logging.Current.Info("Error: Response is null or empty");
-                return null;
-            }
-        }
-
-        public async Task<dynamic> FetchAllLeaderboardsByLocationAsync(string clubId, string locationId)
-        {
-            try
-            {
-                // Start timing
-                var startTime = DateTime.Now;
-
-                var clubChampionshipInfo = (string)PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.clubChampionshipInfo");
-                var clubChampionshipData = JsonConvert.DeserializeObject<dynamic>(clubChampionshipInfo);
-                var leaderboardIds = new List<string>();
-                var stagesData = new List<dynamic>();
-                string location = null;
-
-                foreach (var eventObj in clubChampionshipData.currentChampionship.events)
-                {
-                    if (eventObj.eventSettings.locationID == locationId)
-                    {
-                        location = eventObj.eventSettings.location;
-                        foreach (var stage in eventObj.stages)
-                        {
-                            leaderboardIds.Add(stage.leaderboardID.ToString());
-                        }
-                    }
-                }
-
-                foreach (var leaderboardId in leaderboardIds)
-                {
-                    string cursor = null;
-                    var entries = new List<dynamic>();
-
-                    do
-                    {
-                        var leaderboardData = await FetchClubChampionshipLeaderboardDataAsync(clubId, leaderboardId, cursor: cursor);
-                        entries.AddRange(leaderboardData.entries);
-                        cursor = leaderboardData.next;
-                    } while (cursor != null);
-
-                    // Find the stage that matches the leaderboardId
-                    foreach (var eventObj in clubChampionshipData.currentChampionship.events)
-                    {
-                        foreach (var stage in eventObj.stages)
-                        {
-                            if (stage.leaderboardID.ToString() == leaderboardId)
-                            {
-                                var stageData = new
-                                {
-                                    leaderboardID = leaderboardId,
-                                    routeID = stage.stageSettings.routeID,
-                                    route = stage.stageSettings.route,
-                                    entries = entries
-                                };
-
-                                stagesData.Add(stageData);
-                            }
-                        }
-                    }
-                }
-
-                var allLeaderboardsData = new
-                {
-                    location = location,
-                    locationID = locationId,
-                    stages = stagesData
-                };
-
-                // End timing and calculate elapsed time
-                var endTime = DateTime.Now;
-                var elapsedTime = endTime - startTime;
-                Logging.Current.Info($"All Leaderboards Data in {location} Fetched in: {elapsedTime.TotalSeconds} seconds");
-
-                return allLeaderboardsData;
-            }
-            catch (Exception ex)
-            {
-                Logging.Current.Error($"Error in FetchAllLeaderboardsByLocationAsync: {ex.Message}");
                 return null;
             }
         }

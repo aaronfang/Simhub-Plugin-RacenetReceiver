@@ -42,6 +42,7 @@ namespace Aaron.PluginRacenetReceiver
         private int vehicleClassId;
         private int surfaceConditionId;
         public string CurrentPlayerName { get; set; }
+        public string SelectedEventLocation { get; set; }
         //private readonly bool hasLoaded = false;
 
         public SettingsControl(RacenetDataReceiver plugin)
@@ -397,14 +398,20 @@ namespace Aaron.PluginRacenetReceiver
             plugin.Settings.ClubID = clubID;
             plugin.Settings.RefreshToken = plugin.RefreshToken;
             plugin.ClubName = clubName;
-            SaveSettings();
+            plugin.Settings.SelectedEventLocation = null;
+            
 
             // Fetch the club championship info
             Task.Run(async () =>
             {
                 await plugin.FetchClubChampionshipInfoAsync(clubID);
+                // Update the event list for the selected club
+                this.Dispatcher.Invoke(() =>
+                {
+                    FillClubEventList();
+                });
             });
-
+            SaveSettings();
             // Log the selected club name
             Logging.Current.Info($"Selected Club Name: {clubName}");
         }
@@ -423,13 +430,142 @@ namespace Aaron.PluginRacenetReceiver
             });
         }
 
+        private void FillClubEventList()
+        {
+            if (clubEventComboBox.IsLoaded)
+            {
+                // Assuming pluginManager is accessible in this context
+                var clubChampionshipInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.clubChampionshipInfo"));
+                try
+                {
+                    // Parse clubChampionshipInfoData to a JObject
+                    JObject clubChampionshipInfoDataJson = JObject.Parse(clubChampionshipInfoData);
+
+                    // Get the events from the JSON data
+                    var clubChampionship = clubChampionshipInfoDataJson["currentChampionship"];
+                    var clubChampionshipEvents = clubChampionshipInfoDataJson["currentChampionship"]["events"];
+
+                    // Clear the clubEventComboBox
+                    clubEventComboBox.Items.Clear();
+
+                    // Fill the clubEventComboBox with the club event>eventSettings>location value
+                    foreach (var clubChampionshipEvent in clubChampionshipEvents.Children<JObject>())
+                    {
+                        var clubEventLocationName = clubChampionshipEvent["eventSettings"]["location"].Value<string>();
+                        clubEventComboBox.Items.Add(clubEventLocationName);
+                    }
+
+                    // Set the selected item to the saved event location
+                    if (plugin.Settings.SelectedEventLocation != null)
+                    {
+                        clubEventComboBox.SelectedItem = plugin.Settings.SelectedEventLocation;
+                    }
+                    else if (clubEventComboBox.HasItems)
+                    {
+                        // Set the default selected item
+                        clubEventComboBox.SelectedIndex = 0;
+                    }
+                }
+                catch (JsonReaderException ex)
+                {
+                    // Log the error or handle it appropriately
+                    Logging.Current.Info($"Error parsing JSON: {ex.Message}");
+                }
+            }
+            else
+            {
+                clubEventComboBox.Loaded += (s, e) => FillClubEventList();
+            }
+        }
+
+        private void ClubEventComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (clubEventComboBox.SelectedItem == null) return;
+
+            string selectedEventLocation = clubEventComboBox.SelectedItem.ToString();
+
+            // Save the user's selection
+            plugin.Settings.SelectedEventLocation = selectedEventLocation;
+            // Reset the selected club stage
+            plugin.Settings.SelectedClubStage = null;
+            SaveSettings();
+            // Fill the clubStageComboBox with the stages of the selected event
+            FillClubStageList(selectedEventLocation);
+        }
+
+        private void FillClubStageList(string selectedEventLocation)
+        {
+            if (clubStageComboBox.IsLoaded)
+            {
+                // Assuming pluginManager is accessible in this context
+                var clubChampionshipInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.clubChampionshipInfo"));
+                try
+                {
+                    // Parse clubChampionshipInfoData to a JObject
+                    JObject clubChampionshipInfoDataJson = JObject.Parse(clubChampionshipInfoData);
+
+                    // Get the selected event from the JSON data
+                    var clubChampionshipEvent = clubChampionshipInfoDataJson["currentChampionship"]["events"].FirstOrDefault(e => e["eventSettings"]["location"].Value<string>() == selectedEventLocation);
+
+                    if (clubChampionshipEvent != null)
+                    {
+                        // Clear the clubStageComboBox
+                        clubStageComboBox.Items.Clear();
+
+                        // Fill the clubStageComboBox with the club event>stages>stageSettings>route value
+                        foreach (var stage in clubChampionshipEvent["stages"].Children<JObject>())
+                        {
+                            var stageRoute = stage["stageSettings"]["route"].Value<string>();
+                            var leaderboardID = stage["leaderboardID"].Value<string>();
+                            clubStageComboBox.Items.Add(new { Route = stageRoute, LeaderboardID = leaderboardID });
+                        }
+
+                        // Set the DisplayMemberPath to "Route" to only display the route
+                        clubStageComboBox.DisplayMemberPath = "Route";
+
+                        // Set the selected item to the saved event location
+                        if (plugin.Settings.SelectedClubStage != null)
+                        {
+                            clubStageComboBox.SelectedItem = clubStageComboBox.Items.Cast<dynamic>().FirstOrDefault(item => item.Route == plugin.Settings.SelectedClubStage);
+                        }
+                        else if (clubStageComboBox.HasItems)
+                        {
+                            // Set the default selected item
+                            clubStageComboBox.SelectedIndex = 0;
+                        }
+                    }
+                }
+                catch (JsonReaderException ex)
+                {
+                    // Log the error or handle it appropriately
+                    Logging.Current.Info($"Error parsing JSON: {ex.Message}");
+                }
+            }
+            else
+            {
+                clubStageComboBox.Loaded += (s, e) => FillClubStageList(selectedEventLocation);
+            }
+        }
+
+        private void ClubStageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (clubStageComboBox.SelectedItem == null) return;
+            
+            // Save the selected stage and leaderboard ID to Settings
+            var selectedItem = (dynamic)clubStageComboBox.SelectedItem;
+            plugin.Settings.SelectedClubStage = selectedItem.Route;
+            plugin.Settings.SelectedClubLeaderboardID = selectedItem.LeaderboardID;
+            SaveSettings();
+            
+        }
+
         private void SaveSettings()
         {
             // Check if the token and club name are not empty before saving
             if (!string.IsNullOrEmpty(plugin.Settings.RefreshToken) && !string.IsNullOrEmpty(plugin.Settings.ClubName))
             {
                 // settings.RefreshToken = plugin.RefreshToken;
-                string json = JsonConvert.SerializeObject(plugin.Settings);
+                string json = JsonConvert.SerializeObject(plugin.Settings, Formatting.Indented);
                 File.WriteAllText("settings.json", json);
             }
             else

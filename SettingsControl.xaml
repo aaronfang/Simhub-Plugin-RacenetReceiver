@@ -30,11 +30,6 @@
     </UserControl.Resources>
 
     <Grid>
-        <!-- Input Token Expander -->
-        <Expander Header="Input Token" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="933,14,0,0">
-            <Button x:Name="openDialogButton" Content="Racenet Refresh Token" Click="OpenDialogButton_Click" Width="200" Height="45"/>
-        </Expander>
-
         <!-- Tab Control -->
         <TabControl Margin="0,12,10,53">
             <!-- Time Trial Tab -->
@@ -306,8 +301,8 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <ComboBox x:Name="clubNameComboBox" Grid.Column="0" Height="40" Margin="5" SelectionChanged="ClubNameComboBox_SelectionChanged" DropDownOpened="ClubNameComboBox_DropDownOpened" VerticalContentAlignment="Center"/>
-                        <ComboBox x:Name="clubEventComboBox" Grid.Column="1" Margin="5" VerticalContentAlignment="Center" />
-                        <ComboBox x:Name="clubStageComboBox" Grid.Column="2" Margin="5" VerticalContentAlignment="Center" />
+                        <ComboBox x:Name="clubEventComboBox" Grid.Column="1" Margin="5" SelectionChanged="ClubEventComboBox_SelectionChanged" VerticalContentAlignment="Center" />
+                        <ComboBox x:Name="clubStageComboBox" Grid.Column="2" Margin="5" SelectionChanged="ClubStageComboBox_SelectionChanged" VerticalContentAlignment="Center" />
                         <ComboBox x:Name="clubScoreComboBox" Grid.Column="3" Margin="5" VerticalContentAlignment="Center" />
                     </Grid>
 
@@ -510,5 +505,10 @@
                 </Grid>
             </TabItem>
         </TabControl>
+
+        <!-- Input Token Expander -->
+        <Expander Header="Input Token" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="933,14,0,0">
+            <Button x:Name="openDialogButton" Content="Racenet Refresh Token" Click="OpenDialogButton_Click" Width="200" Height="45"/>
+        </Expander>
     </Grid>
 </UserControl>

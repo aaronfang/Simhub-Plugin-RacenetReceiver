@@ -15,5 +15,8 @@ namespace Aaron.PluginRacenetReceiver
         public string SelectedStage { get; set; }
         public string SelectedCarClass { get; set; }
         public string SelectedSurfaceCondition { get; set; }
+        public string SelectedEventLocation { get; set; }
+        public string SelectedClubStage { get; set; }
+        public string SelectedClubLeaderboardID { get; set; }
     }
 }

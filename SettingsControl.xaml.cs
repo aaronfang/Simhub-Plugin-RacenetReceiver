@@ -38,12 +38,14 @@ namespace Aaron.PluginRacenetReceiver
         private string selectedCarClass;
         private string selectedSurfaceCondition;
         private dynamic currentLeaderboardData;
+        private dynamic currentClubLeaderboardData;
         private int stageId;
         private int vehicleClassId;
         private int surfaceConditionId;
         public string CurrentPlayerName { get; set; }
         public string SelectedEventLocation { get; set; }
         //private readonly bool hasLoaded = false;
+        public Brush BackgroundColor { get; set; }
 
         public SettingsControl(RacenetDataReceiver plugin)
         {
@@ -350,6 +352,7 @@ namespace Aaron.PluginRacenetReceiver
                 var selectedIndex = 0;
                 var sortedClubList = plugin.ClubListData.OrderBy(club => club.clubName.ToString()).ToList();
                 var idx = 0;
+                
                 foreach (var club in sortedClubList)
                 {
                     clubNameComboBox.Items.Add(new{club.clubName, club.clubID});
@@ -398,7 +401,7 @@ namespace Aaron.PluginRacenetReceiver
             plugin.Settings.ClubID = clubID;
             plugin.Settings.RefreshToken = plugin.RefreshToken;
             plugin.ClubName = clubName;
-            plugin.Settings.SelectedEventLocation = null;
+            // plugin.Settings.SelectedEventLocation = null;
             
 
             // Fetch the club championship info
@@ -409,11 +412,17 @@ namespace Aaron.PluginRacenetReceiver
                 this.Dispatcher.Invoke(() =>
                 {
                     FillClubEventList();
+                    // if(clubEventComboBox.HasItems)
+                    // {
+                    //     clubEventComboBox.SelectedIndex = 0;
+                    // }
                 });
             });
             SaveSettings();
             // Log the selected club name
             Logging.Current.Info($"Selected Club Name: {clubName}");
+
+            CheckAndFillClubLeaderboardDataGrid();
         }
 
         private void ClubNameComboBox_DropDownOpened(object sender, EventArgs e)
@@ -438,6 +447,9 @@ namespace Aaron.PluginRacenetReceiver
                 var clubChampionshipInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.clubChampionshipInfo"));
                 try
                 {
+                    // Unsubscribe from the SelectionChanged event
+                    // clubEventComboBox.SelectionChanged -= ClubEventComboBox_SelectionChanged;
+                    
                     // Parse clubChampionshipInfoData to a JObject
                     JObject clubChampionshipInfoDataJson = JObject.Parse(clubChampionshipInfoData);
 
@@ -458,13 +470,23 @@ namespace Aaron.PluginRacenetReceiver
                     // Set the selected item to the saved event location
                     if (plugin.Settings.SelectedEventLocation != null)
                     {
-                        clubEventComboBox.SelectedItem = plugin.Settings.SelectedEventLocation;
+                        foreach (var item in clubEventComboBox.Items)
+                        {
+                            if (item.ToString() == plugin.Settings.SelectedEventLocation)
+                            {
+                                clubEventComboBox.SelectedItem = item;
+                                break;
+                            }
+                        }
+                        // clubEventComboBox.SelectedItem = plugin.Settings.SelectedEventLocation;
                     }
-                    else if (clubEventComboBox.HasItems)
+                    if (clubEventComboBox.SelectedItem == null && clubEventComboBox.HasItems)
                     {
-                        // Set the default selected item
                         clubEventComboBox.SelectedIndex = 0;
                     }
+
+                    // Resubscribe to the SelectionChanged event
+                    // clubEventComboBox.SelectionChanged += ClubEventComboBox_SelectionChanged;
                 }
                 catch (JsonReaderException ex)
                 {
@@ -487,7 +509,7 @@ namespace Aaron.PluginRacenetReceiver
             // Save the user's selection
             plugin.Settings.SelectedEventLocation = selectedEventLocation;
             // Reset the selected club stage
-            plugin.Settings.SelectedClubStage = null;
+            // plugin.Settings.SelectedClubStage = null;、
             SaveSettings();
             // Fill the clubStageComboBox with the stages of the selected event
             FillClubStageList(selectedEventLocation);
@@ -509,6 +531,9 @@ namespace Aaron.PluginRacenetReceiver
 
                     if (clubChampionshipEvent != null)
                     {
+                        // Unsubscribe from the SelectionChanged event
+                        // clubStageComboBox.SelectionChanged -= ClubStageComboBox_SelectionChanged;
+
                         // Clear the clubStageComboBox
                         clubStageComboBox.Items.Clear();
 
@@ -526,13 +551,24 @@ namespace Aaron.PluginRacenetReceiver
                         // Set the selected item to the saved event location
                         if (plugin.Settings.SelectedClubStage != null)
                         {
-                            clubStageComboBox.SelectedItem = clubStageComboBox.Items.Cast<dynamic>().FirstOrDefault(item => item.Route == plugin.Settings.SelectedClubStage);
+                            foreach (var item in clubStageComboBox.Items)
+                            {
+                                if (((dynamic)item).Route == plugin.Settings.SelectedClubStage)
+                                {
+                                    clubStageComboBox.SelectedItem = item;
+                                    break;
+                                }
+                            }
+                            // clubStageComboBox.SelectedItem = clubStageComboBox.Items.Cast<dynamic>().FirstOrDefault(item => item.Route == plugin.Settings.SelectedClubStage);
                         }
-                        else if (clubStageComboBox.HasItems)
+                        if (clubStageComboBox.SelectedItem == null && clubStageComboBox.HasItems)
                         {
                             // Set the default selected item
                             clubStageComboBox.SelectedIndex = 0;
                         }
+
+                        // Resubscribe to the SelectionChanged event
+                        // clubStageComboBox.SelectionChanged += ClubStageComboBox_SelectionChanged;
                     }
                 }
                 catch (JsonReaderException ex)
@@ -556,7 +592,7 @@ namespace Aaron.PluginRacenetReceiver
             plugin.Settings.SelectedClubStage = selectedItem.Route;
             plugin.Settings.SelectedClubLeaderboardID = selectedItem.LeaderboardID;
             SaveSettings();
-            
+            CheckAndFillClubLeaderboardDataGrid();
         }
 
         private void SaveSettings()
@@ -590,6 +626,8 @@ namespace Aaron.PluginRacenetReceiver
             public bool IsCurrentUser { get; set; }
             // public List<BitmapImage> AssistIcons { get; set; }
             public BitmapImage[] AssistIcons { get; set; }
+            public int Points { get; set; }
+            public string Overall { get; set; }
         }
 
         private void FillLeaderboardDataGrid(dynamic leaderboardData)
@@ -611,6 +649,10 @@ namespace Aaron.PluginRacenetReceiver
 
                 // Convert assistFlags from integer array to string array
                 int[] assistFlagsIntArray = entry.assistFlags.ToObject<int[]>();
+                if (assistFlagsIntArray.Length == 0)
+                {
+                    assistFlagsIntArray = new int[] { 0 };
+                }
                 string[] assistFlagsStrArray = Array.ConvertAll(assistFlagsIntArray, x => x.ToString()); 
                 
                 // Create a new LeaderboardRow
@@ -633,6 +675,52 @@ namespace Aaron.PluginRacenetReceiver
 
             // Fill the leaderboardDataGrid with the rows
             leaderboardDataGrid.ItemsSource = rows;
+        }
+
+        private void FillClubLeaderboardDataGrid(dynamic leaderboardData)
+        {
+            // Update the current leaderboard data
+            currentClubLeaderboardData = leaderboardData;
+
+            // Get the current player's name
+            var personalInfoData = (string)(plugin.PluginManager.GetPropertyValue("RacenetDataReceiver.Racenet.rawData.personalInfo"));
+            CurrentPlayerName = JObject.Parse(personalInfoData)["displayName"] != null ? JObject.Parse(personalInfoData)["displayName"].ToString() : string.Empty;
+            
+            // Convert the leaderboardData to a list of LeaderboardRow
+            List<LeaderboardRow> rows = new List<LeaderboardRow>();
+            foreach (var entry in leaderboardData.entries)
+            {
+                string time = entry.time != null ? FormatTime(entry.time.ToString()) : string.Empty;
+                string diffFirst = entry.differenceToFirst != null ? FormatDiffTime(entry.differenceToFirst.ToString()) : string.Empty;
+
+                // Convert assistFlags from integer array to string array
+                int[] assistFlagsIntArray = entry.assists.ToObject<int[]>();
+                string[] assistFlagsStrArray = Array.ConvertAll(assistFlagsIntArray, x => x.ToString()); 
+
+                // Add Points and Overall to the row
+                int points = entry.points != null ? int.Parse(entry.points.ToString()) : 0;
+                string overall = entry.timeAccumulated != null ? FormatTime(entry.timeAccumulated.ToString()) : string.Empty;
+
+                rows.Add(new LeaderboardRow
+                {
+                    Position = entry.rank,
+                    Player = entry.displayName,
+                    Nation = entry.nationalityID,
+                    NationFlag = GetNationFlag(entry.nationalityID.ToString()),
+                    Vehicle = entry.vehicle,
+                    Assists = string.Join("- ", assistFlagsStrArray),
+                    AssistIcons = GetAssistIcons(assistFlagsIntArray),
+                    Penalty = entry.timePenalty,
+                    Time = time,
+                    DiffFirst = diffFirst, 
+                    IsCurrentUser = entry.displayName == CurrentPlayerName, 
+                    Points = points,
+                    Overall = overall
+                });
+            }
+
+            // Set the ItemsSource of the DataGrid
+            clubDataGrid.ItemsSource = rows;
         }
 
         private BitmapImage GetNationFlag(string nationalityId)
@@ -765,6 +853,22 @@ namespace Aaron.PluginRacenetReceiver
             }
         }
 
+        private async void CheckAndFillClubLeaderboardDataGrid()
+        {
+            // Check if all the combo boxes have a selected item
+            if (clubNameComboBox.SelectedItem != null && clubEventComboBox.SelectedItem != null && clubStageComboBox.SelectedItem != null)
+            {
+                // Fetch the leaderboard data
+                var leaderboardData = await plugin.FetchClubChampionshipLeaderboardDataAsync(plugin.Settings.ClubID, plugin.Settings.SelectedClubLeaderboardID);
+
+                // Update the current leaderboard data
+                currentClubLeaderboardData = leaderboardData;
+
+                // Fill the clubLeaderboardDataGrid with the fetched data
+                FillClubLeaderboardDataGrid(leaderboardData);
+            }
+        }
+
         private async void PreviousPageButton_Click(object sender, RoutedEventArgs e)
         {
             // Get the previous cursor from the current leaderboard data
@@ -788,6 +892,30 @@ namespace Aaron.PluginRacenetReceiver
 
             // Fill the leaderboardDataGrid with the fetched data
             FillLeaderboardDataGrid(leaderboardData);
+        }
+
+        private async void PreviousClubPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Get the previous cursor from the current club leaderboard data
+            string previousCursor = currentClubLeaderboardData["previous"].ToString();
+
+            // Fetch the previous page of club leaderboard data
+            var leaderboardData = await plugin.FetchClubChampionshipLeaderboardDataAsync(plugin.Settings.ClubID, plugin.Settings.SelectedClubLeaderboardID, cursor:previousCursor);
+
+            // Fill the clubLeaderboardDataGrid with the fetched data
+            FillClubLeaderboardDataGrid(leaderboardData);
+        }
+
+        private async void NextClubPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Get the next cursor from the current club leaderboard data
+            string nextCursor = currentClubLeaderboardData["next"].ToString();
+
+            // Fetch the next page of club leaderboard data
+            var leaderboardData = await plugin.FetchClubChampionshipLeaderboardDataAsync(plugin.Settings.ClubID, plugin.Settings.SelectedClubLeaderboardID, cursor:nextCursor);
+
+            // Fill the clubLeaderboardDataGrid with the fetched data
+            FillClubLeaderboardDataGrid(leaderboardData);
         }
         
         private BitmapImage[] GetAssistIcons(int[] assistFlags)

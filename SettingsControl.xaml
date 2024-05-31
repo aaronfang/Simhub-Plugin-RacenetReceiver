@@ -284,12 +284,12 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <!-- <ColumnDefinition Width="*"/> -->
                         </Grid.ColumnDefinitions>
                         <Label Content="Clubs" Grid.Column="0" Margin="5" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom"/>
                         <Label Content="Events" Grid.Column="1" Margin="5" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom"/>
                         <Label Content="Stage" Grid.Column="2" Margin="5" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom"/>
-                        <Label Content="Score(stage/overall)" Grid.Column="3" Margin="5" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom"/>
+                        <!-- <Label Content="Score(stage/overall)" Grid.Column="3" Margin="5" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom"/> -->
                     </Grid>
 
                     <!-- Row 2: ComboBoxes -->
@@ -298,12 +298,12 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <!-- <ColumnDefinition Width="*"/> -->
                         </Grid.ColumnDefinitions>
                         <ComboBox x:Name="clubNameComboBox" Grid.Column="0" Height="40" Margin="5" SelectionChanged="ClubNameComboBox_SelectionChanged" DropDownOpened="ClubNameComboBox_DropDownOpened" VerticalContentAlignment="Center"/>
                         <ComboBox x:Name="clubEventComboBox" Grid.Column="1" Margin="5" SelectionChanged="ClubEventComboBox_SelectionChanged" VerticalContentAlignment="Center" />
                         <ComboBox x:Name="clubStageComboBox" Grid.Column="2" Margin="5" SelectionChanged="ClubStageComboBox_SelectionChanged" VerticalContentAlignment="Center" />
-                        <ComboBox x:Name="clubScoreComboBox" Grid.Column="3" Margin="5" VerticalContentAlignment="Center" />
+                        <!-- <ComboBox x:Name="clubScoreComboBox" Grid.Column="3" Margin="5" VerticalContentAlignment="Center" /> -->
                     </Grid>
 
                     <!-- Row 3: DataGrid -->
@@ -493,13 +493,51 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
+                            <DataGridTextColumn Header="POINTS" Binding="{Binding Points}" Width="80" MinWidth="60" FontWeight="Bold" FontSize="16">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="0,0,10,0"/>
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="OVERALL" Binding="{Binding Overall}" Width="120" MinWidth="100" FontWeight="Bold" FontSize="16">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="0,0,10,0"/>
+                                        <Setter Property="TextAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 
                     <!-- Row 4: Page Buttons -->
                     <StackPanel Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Center">
-                        <Button x:Name="clubPreviousPageButton" Content="Previous" Click="PreviousPageButton_Click" Width="100" Height="30" Margin="10"/>
-                        <Button x:Name="clubNextPageButton" Content="Next" Click="NextPageButton_Click" Width="100" Height="30" Margin="10"/>
+                        <Button x:Name="clubPreviousPageButton" Content="Previous" Click="PreviousClubPageButton_Click" Width="100" Height="30" Margin="10"/>
+                        <Button x:Name="clubNextPageButton" Content="Next" Click="NextClubPageButton_Click" Width="100" Height="30" Margin="10"/>
                     </StackPanel>
 
                 </Grid>

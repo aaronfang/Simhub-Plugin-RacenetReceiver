@@ -111,7 +111,7 @@ namespace Aaron.PluginRacenetReceiver
                             try
                             {
                                 int stageId = int.Parse(trackId.Split('_')[1]);
-                                string locationId = trackId.Split('_')[0];
+                                // string locationId = trackId.Split('_')[0];
                                 string leaderboardID = GetLeaderboardIdByStageId(stageId);
                                 var clubLeaderboardData = await FetchClubChampionshipLeaderboardDataAsync(Settings.ClubID, leaderboardID);
 
@@ -251,7 +251,7 @@ namespace Aaron.PluginRacenetReceiver
                 // Update the refresh token and save the settings
                 Logging.Current.Info("Save new refresh token to settings.json...");
                 settings.RefreshToken = RefreshToken;
-                string jsonToWrite = JsonConvert.SerializeObject(settings);
+                string jsonToWrite = JsonConvert.SerializeObject(settings, Formatting.Indented);
                 File.WriteAllText("settings.json", jsonToWrite);
 
                 // Call the callback function if it is provided

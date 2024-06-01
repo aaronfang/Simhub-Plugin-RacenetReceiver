@@ -45,7 +45,6 @@ namespace Aaron.PluginRacenetReceiver
         public string CurrentPlayerName { get; set; }
         public string SelectedEventLocation { get; set; }
         //private readonly bool hasLoaded = false;
-        public Brush BackgroundColor { get; set; }
 
         public SettingsControl(RacenetDataReceiver plugin)
         {
@@ -352,10 +351,15 @@ namespace Aaron.PluginRacenetReceiver
                 var selectedIndex = 0;
                 var sortedClubList = plugin.ClubListData.OrderBy(club => club.clubName.ToString()).ToList();
                 var idx = 0;
-                
                 foreach (var club in sortedClubList)
                 {
-                    clubNameComboBox.Items.Add(new{club.clubName, club.clubID});
+                    var isActiveNow = false;
+                    if (club.currentChampionshipSummary != null)
+                    {
+                        isActiveNow = club.currentChampionshipSummary.isActiveNow;
+                    }
+
+                    clubNameComboBox.Items.Add(new{club.clubName, club.clubID, isActiveNow});
                     if(club.clubName == plugin.Settings.ClubName)
                     {
                         selectedIndex = idx;
@@ -363,11 +367,11 @@ namespace Aaron.PluginRacenetReceiver
                     idx++;
                 }
 
-                // Set the DisplayMemberPath to "clubName" to only display the club name
-                clubNameComboBox.DisplayMemberPath = "clubName";
-
                 // Set the selected item to the saved club name
                 clubNameComboBox.SelectedIndex = selectedIndex;
+
+                // Set the DisplayMemberPath to "clubName" to only display the club name
+                // clubNameComboBox.DisplayMemberPath = "clubName";
             }
             else
             {
@@ -956,7 +960,7 @@ namespace Aaron.PluginRacenetReceiver
             return image;
         }
 
-        private string LoadJsonFromResources(string resourcePath)
+        public string LoadJsonFromResources(string resourcePath)
         {
             var assembly = Assembly.GetExecutingAssembly();
             using (var stream = assembly.GetManifestResourceStream(resourcePath))

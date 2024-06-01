@@ -98,6 +98,7 @@ namespace Aaron.PluginRacenetReceiver
                 // Check if ClubID and SelectedClubLeaderboardID are not empty
                 if (!string.IsNullOrEmpty(Settings.ClubID) && !string.IsNullOrEmpty(trackId) && !string.IsNullOrEmpty(vehicleId) && clubChampionshipInfo != null && clubChampionshipInfo.Count != 0)
                 {
+                    PluginManager.SetPropertyValue("Racenet.rawData.currentClubName", this.GetType(), Settings.ClubName);
                     // Check if it's been more than a minute since the last fetch
                     if ((DateTime.Now - lastFetchTimeForClubChampionship).TotalMinutes >= 1 || newTrackId != previousTrackId)
                     {
@@ -112,6 +113,9 @@ namespace Aaron.PluginRacenetReceiver
                             {
                                 int stageId = int.Parse(trackId.Split('_')[1]);
                                 // string locationId = trackId.Split('_')[0];
+
+                                PluginManager.SetPropertyValue("Racenet.rawData.currentClubWeatherAndSurface", this.GetType(), GetClubWeatherSurfaceByStageId(stageId));
+
                                 string leaderboardID = GetLeaderboardIdByStageId(stageId);
                                 var clubLeaderboardData = await FetchClubChampionshipLeaderboardDataAsync(Settings.ClubID, leaderboardID);
 
@@ -142,6 +146,11 @@ namespace Aaron.PluginRacenetReceiver
             pluginManager.AddProperty("Racenet.rawData.leaderboard.wet", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.clubChampionshipInfo", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.clubLeaderboardCurrentStage", this.GetType(), "-");
+            pluginManager.AddProperty("Racenet.rawData.currentClubName", this.GetType(), "-");
+            pluginManager.AddProperty("Racenet.rawData.currentClubWeatherAndSurface", this.GetType(), "-");
+            pluginManager.AddProperty("Racenet.rawData.nationalityID", this.GetType(), "-");
+
+            PluginManager.SetPropertyValue("Racenet.rawData.nationalityID", this.GetType(), new SettingsControl(this).LoadJsonFromResources("Aaron.PluginRacenetReceiver.nationalityID.json"));
 
             // Load settings from file
             if (File.Exists("settings.json"))
@@ -481,6 +490,25 @@ namespace Aaron.PluginRacenetReceiver
                     if ((int)stage["stageSettings"]["routeID"] == stageId)
                     {
                         return (string)stage["leaderboardID"];
+                    }
+                }
+            }
+
+            throw new Exception($"Stage with id {stageId} not found.");
+        }
+
+        public string GetClubWeatherSurfaceByStageId(int stageId)
+        {
+            // Assuming clubChampionshipInfo is a JObject that contains the parsed JSON data
+            JArray events = (JArray)clubChampionshipInfo["currentChampionship"]["events"];
+            foreach (JObject eventObj in events.Cast<JObject>())
+            {
+                JArray stages = (JArray)eventObj["stages"];
+                foreach (JObject stage in stages.Cast<JObject>())
+                {
+                    if ((int)stage["stageSettings"]["routeID"] == stageId)
+                    {
+                        return (string)stage["stageSettings"]["weatherAndSurface"];
                     }
                 }
             }

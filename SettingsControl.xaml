@@ -33,13 +33,13 @@
         <!-- Tab Control -->
         <TabControl Margin="0,12,10,53">
             <!-- Time Trial Tab -->
-            <TabItem Header="Time Trial" Height="39" VerticalAlignment="Top" FontFamily="Arial" FontSize="14" HorizontalAlignment="Center" Background="#FF252525">
+            <TabItem Header="Time Trial" Height="39" VerticalAlignment="Top" FontFamily="Arial" FontSize="14" HorizontalAlignment="Center" Background="#FF2D2D2D">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/> 
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Row 1: Labels -->
@@ -119,16 +119,16 @@
                             </DataGridTextColumn>
                             <DataGridTemplateColumn Header="NATION" Width="70" MinWidth="70">
                                 <DataGridTemplateColumn.HeaderStyle>
-                                        <Style TargetType="DataGridColumnHeader">
-                                            <Setter Property="Height" Value="40"/>
-                                            <Setter Property="Background" Value="Black"/>
-                                            <Setter Property="FontWeight" Value="Bold"/>
-                                            <Setter Property="Padding" Value="0,0,0,0"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                            <Setter Property="BorderBrush" Value="#FF737373"/>
-                                            <Setter Property="BorderThickness" Value="0,0,2,3"/>
-                                        </Style>
-                                    </DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Image Source="{Binding NationFlag}" />
@@ -267,15 +267,15 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            
+
             <!-- Club Tab -->
-            <TabItem Header="Club" Margin="8,0,-8,0" FontFamily="Arial" FontSize="14">
+            <TabItem Header="Club" Margin="8,0,-8,0" FontFamily="Arial" FontSize="14" Background="#FF2D2D2D">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/> 
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Row 1: Labels -->
@@ -300,7 +300,29 @@
                             <ColumnDefinition Width="*"/>
                             <!-- <ColumnDefinition Width="*"/> -->
                         </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="clubNameComboBox" Grid.Column="0" Height="40" Margin="5" SelectionChanged="ClubNameComboBox_SelectionChanged" DropDownOpened="ClubNameComboBox_DropDownOpened" VerticalContentAlignment="Center"/>
+                        <ComboBox x:Name="clubNameComboBox" Grid.Column="0" Height="40" Margin="5" SelectionChanged="ClubNameComboBox_SelectionChanged" DropDownOpened="ClubNameComboBox_DropDownOpened" VerticalContentAlignment="Center">
+                            <ComboBox.ItemContainerStyle>
+                                <Style TargetType="ComboBoxItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ComboBox.ItemContainerStyle>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Rectangle x:Name="BackgroundRectangle" Fill="Gray" />
+                                        <TextBlock Text="{Binding clubName}" />
+                                    </Grid>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding isActiveNow}" Value="True">
+                                            <Setter TargetName="BackgroundRectangle" Property="Fill" Value="Green" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ComboBoxItem}, Path=IsSelected}" Value="True">
+                                            <Setter TargetName="BackgroundRectangle" Property="Fill" Value="#FF1383B3" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                         <ComboBox x:Name="clubEventComboBox" Grid.Column="1" Margin="5" SelectionChanged="ClubEventComboBox_SelectionChanged" VerticalContentAlignment="Center" />
                         <ComboBox x:Name="clubStageComboBox" Grid.Column="2" Margin="5" SelectionChanged="ClubStageComboBox_SelectionChanged" VerticalContentAlignment="Center" />
                         <!-- <ComboBox x:Name="clubScoreComboBox" Grid.Column="3" Margin="5" VerticalContentAlignment="Center" /> -->
@@ -355,16 +377,16 @@
                             </DataGridTextColumn>
                             <DataGridTemplateColumn Header="NATION" Width="70" MinWidth="70">
                                 <DataGridTemplateColumn.HeaderStyle>
-                                        <Style TargetType="DataGridColumnHeader">
-                                            <Setter Property="Height" Value="40"/>
-                                            <Setter Property="Background" Value="Black"/>
-                                            <Setter Property="FontWeight" Value="Bold"/>
-                                            <Setter Property="Padding" Value="0,0,0,0"/>
-                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                            <Setter Property="BorderBrush" Value="#FF737373"/>
-                                            <Setter Property="BorderThickness" Value="0,0,2,3"/>
-                                        </Style>
-                                    </DataGridTemplateColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="0,0,0,0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="#FF737373"/>
+                                        <Setter Property="BorderThickness" Value="0,0,2,3"/>
+                                    </Style>
+                                </DataGridTemplateColumn.HeaderStyle>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Image Source="{Binding NationFlag}" />

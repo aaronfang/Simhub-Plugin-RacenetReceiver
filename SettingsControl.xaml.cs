@@ -657,8 +657,8 @@ namespace Aaron.PluginRacenetReceiver
                 {
                     assistFlagsIntArray = new int[] { 0 };
                 }
-                string[] assistFlagsStrArray = Array.ConvertAll(assistFlagsIntArray, x => x.ToString()); 
-                
+                string[] assistFlagsStrArray = Array.ConvertAll(assistFlagsIntArray, x => x.ToString());
+
                 // Create a new LeaderboardRow
                 LeaderboardRow row = new LeaderboardRow
                 {

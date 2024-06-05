@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using System.Windows.Forms;
 using System.Net;
 using System.Timers;
+using System.Threading;
 
 namespace Aaron.PluginRacenetReceiver
 {
@@ -121,6 +122,13 @@ namespace Aaron.PluginRacenetReceiver
 
                                 // Set the club leaderboard data to property
                                 PluginManager.SetPropertyValue("Racenet.rawData.clubLeaderboardCurrentStage", this.GetType(), JsonConvert.SerializeObject(clubLeaderboardData, Formatting.Indented));
+
+                                var (playerId, leaderboardId) = GetPlayerIdLeaderboardIdByRank(1, "club", true);
+                                if (playerId != null && leaderboardId != null)
+                                {
+                                    var bestRealtimeData = await FetchPlayerRealTimeDataAsync(leaderboardId, playerId);
+                                    PluginManager.SetPropertyValue("Racenet.rawData.bestAvailableRealtimeData", this.GetType(), JsonConvert.SerializeObject(bestRealtimeData, Formatting.Indented));
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -149,6 +157,7 @@ namespace Aaron.PluginRacenetReceiver
             pluginManager.AddProperty("Racenet.rawData.currentClubName", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.currentClubWeatherAndSurface", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.nationalityID", this.GetType(), "-");
+            pluginManager.AddProperty("Racenet.rawData.bestAvailableRealtimeData", this.GetType(), "-");
 
             PluginManager.SetPropertyValue("Racenet.rawData.nationalityID", this.GetType(), new SettingsControl(this).LoadJsonFromResources("Aaron.PluginRacenetReceiver.nationalityID.json"));
 
@@ -478,6 +487,37 @@ namespace Aaron.PluginRacenetReceiver
             }
         }
 
+        public async Task<dynamic> FetchPlayerRealTimeDataAsync(string leaderboardId, string playerId)
+        {
+            string url = $"https://web-api.racenet.com/api/wrc2023Stats/performanceAnalysis/ghost?WrcRivalLeaderboardId={leaderboardId}&WrcRivalPlayerId={playerId}";
+            var headers = new Dictionary<string, string>
+            {
+                { "Authorization", $"Bearer {access_token}" },
+                { "User-Agent", "Apifox/1.0.0 (https://apifox.com)" }
+            };
+
+            return await SendGetRequestAsync(url, headers);
+        }
+
+        public async Task FetchAndSetRealTimeDataAsync(List<string> leaderboardIds, List<string> playerIds)
+        {
+            if (leaderboardIds.Count != playerIds.Count)
+            {
+                throw new ArgumentException("The count of leaderboardIds and playerIds must be equal.");
+            }
+
+            var realTimeDataList = new List<dynamic>();
+
+            for (int i = 0; i < leaderboardIds.Count; i++)
+            {
+                var realTimeData = await FetchPlayerRealTimeDataAsync(leaderboardIds[i], playerIds[i]);
+                realTimeDataList.Add(realTimeData);
+            }
+
+            string realTimeDataJson = JsonConvert.SerializeObject(realTimeDataList, Formatting.Indented);
+            PluginManager.SetPropertyValue("Racenet.rawData.realtimeData", this.GetType(), realTimeDataJson);
+        }
+
         public string GetLeaderboardIdByStageId(int stageId)
         {
             // Assuming clubChampionshipInfo is a JObject that contains the parsed JSON data
@@ -535,6 +575,49 @@ namespace Aaron.PluginRacenetReceiver
             // Return null if no matching leaderboardId is found
             return null;
         }
+
+        public (string playerId, string leaderboardId) GetPlayerIdLeaderboardIdByRank(int rank, string condition, bool findClosest = false)
+        {
+            string leaderboardProperty;
+            switch (condition.ToLower())
+            {
+                case "dry":
+                    leaderboardProperty = "RacenetDataReceiver.Racenet.rawData.leaderboard.dry";
+                    break;
+                case "wet":
+                    leaderboardProperty = "RacenetDataReceiver.Racenet.rawData.leaderboard.wet";
+                    break;
+                case "club":
+                    leaderboardProperty = "RacenetDataReceiver.Racenet.rawData.clubLeaderboardCurrentStage";
+                    break;
+                default:
+                    throw new ArgumentException("Invalid condition. Valid conditions are 'dry', 'wet', 'club'.");
+            }
+
+            var leaderboardData = (string)(PluginManager.GetPropertyValue(leaderboardProperty));
+            if (leaderboardData == "-" || string.IsNullOrEmpty(leaderboardData))
+            {
+                return (null, null);
+            }
+
+            var leaderboardJson = JsonConvert.DeserializeObject<dynamic>(leaderboardData);
+
+            foreach (var entry in leaderboardJson.entries)
+            {
+                if (entry.rank == rank && entry.leaderboardId != null)
+                {
+                    return (entry.wrcPlayerId, entry.leaderboardId);
+                }
+                else if (findClosest && entry.rank > rank && entry.leaderboardId != null)
+                {
+                    Logging.Current.Info($"Closest rank found: {entry.rank}; PlayerName: {entry.displayName}");
+                    return (entry.wrcPlayerId, entry.leaderboardId);
+                }
+            }
+
+            return (null, null);
+        }
+
     }
 
     public class JsonDataHelper

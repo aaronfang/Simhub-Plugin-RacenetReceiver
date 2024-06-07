@@ -112,7 +112,7 @@ namespace Aaron.PluginRacenetReceiver
                 if (!string.IsNullOrEmpty(Settings.ClubID) && !string.IsNullOrEmpty(trackId) && !string.IsNullOrEmpty(vehicleId) && clubChampionshipInfo != null && clubChampionshipInfo.Count != 0)
                 {
                     PluginManager.SetPropertyValue("Racenet.rawData.currentClubName", this.GetType(), Settings.ClubName);
-                    PluginManager.SetPropertyValue("Racenet.rawData.currentCarClass", this.GetType(), Settings.SelectedCarClass);
+                    // PluginManager.SetPropertyValue("Racenet.rawData.currentCarClass", this.GetType(), Settings.SelectedCarClass);
                     // Check if it's been more than a minute since the last fetch
                     if ((DateTime.Now - lastFetchTimeForClubChampionship).TotalMinutes >= 1 || newTrackId != previousTrackId || (stageProgress < 0 && !clubTaskExecuted))
                     {
@@ -184,7 +184,7 @@ namespace Aaron.PluginRacenetReceiver
             pluginManager.AddProperty("Racenet.rawData.clubLeaderboardCurrentStage", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.currentClubName", this.GetType(), "-");
             // pluginManager.AddProperty("Racenet.rawData.currentClubStage", this.GetType(), "-");
-            pluginManager.AddProperty("Racenet.rawData.currentCarClass", this.GetType(), "-");
+            // pluginManager.AddProperty("Racenet.rawData.currentCarClass", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.currentClubWeatherAndSurface", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.nationalityID", this.GetType(), "-");
             // pluginManager.AddProperty("Racenet.rawData.bestAvailableRealtimeData", this.GetType(), "-");

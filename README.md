@@ -19,6 +19,8 @@ Get Time Trial and Club Learderboard data from Racenet.com for **EA WRC 23**. Yo
     b. login with your EA account  
     c. open developer tools in browser (clrt+shift+i in chrome, firefox, etc.)
     d. copy the `refresh_token`
+
+note: Usually, refresh_token doesn't expire. However, if you haven't used the plugin for a long time, there's a chance that the refresh_token might become invalid. In that case, you'll need to get a new refresh_token.
  
 <img src="doc/get_refresh_token.png" width="80%" height="80%">  
 

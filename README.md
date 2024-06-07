@@ -38,26 +38,36 @@ club leaderboard
     b. Click `Club` tab to get the club leaderboard data.  
 
 5. Following properties are added to the `Available properties` tab, you can use these raw data from racenet in the dashboard editor.
-    - `RacenetDataReceiver.Racenet.rawData.clubChampionshipInfo`  
+    `RacenetDataReceiver.Racenet.rawData.clubChampionshipInfo`  
     > Championship/Events list for current club.  
-    - `RacenetDataReceiver.Racenet.rawData.clubLeaderboardCurrentStage`  
+
+    `RacenetDataReceiver.Racenet.rawData.clubLeaderboardCurrentStage`  
     > Current stage leaderboard for current club.  
-    - `RacenetDataReceiver.Racenet.rawData.clubListData`   
+
+    `RacenetDataReceiver.Racenet.rawData.clubListData`   
     > All the clubs you have joined.  
-    - `RacenetDataReceiver.Racenet.rawData.currentClubName`  
+
+    `RacenetDataReceiver.Racenet.rawData.currentClubName`  
     > Current club name you have selected in the Club tab.  
-    - `RacenetDataReceiver.Racenet.rawData.currentClubWeatherAndSurface`  
+
+    `RacenetDataReceiver.Racenet.rawData.currentClubWeatherAndSurface`  
     > Current club weather and surface condition.  
-    - `RacenetDataReceiver.Racenet.rawData.leaderboard.dry`  
+
+    `RacenetDataReceiver.Racenet.rawData.leaderboard.dry`  
     > Time trial leaderboard for DRY condition of current stage.  
-    - `RacenetDataReceiver.Racenet.rawData.leaderboard.wet`  
+
+    `RacenetDataReceiver.Racenet.rawData.leaderboard.wet`  
     > Time trial leaderboard for WET condition of current stage.  
-    - `RacenetDataReceiver.Racenet.rawData.nationalityID`  
+
+    `RacenetDataReceiver.Racenet.rawData.nationalityID`  
     > The correspondence between nationality ID and contry flag png.  
-    - `RacenetDataReceiver.Racenet.rawData.personalInfo`  
+
+    `RacenetDataReceiver.Racenet.rawData.personalInfo`  
     > Player's personal info.  
-    - `RacenetDataReceiver.Racenet.rawData.timeTrialPreInfo`  
+
+    `RacenetDataReceiver.Racenet.rawData.timeTrialPreInfo`  
     > Such as location name/id, route name/id, vehicle/vehicleClass id, etc.  
+    
 
 ### Next Steps:
 - [x] Code as SimHub plugin

@@ -37,7 +37,8 @@ club leaderboard
     a. Click `Time Trial` tab to get the time trial leaderboard data.  
     b. Click `Club` tab to get the club leaderboard data.  
 
-5. Following properties are added to the `Available properties` tab, you can use these raw data from racenet in the dashboard editor.
+5. Following properties are added to the `Available properties` tab, you can use these raw data from racenet in the dashboard editor.  
+
     `RacenetDataReceiver.Racenet.rawData.clubChampionshipInfo`  
     > Championship/Events list for current club.  
 
@@ -67,7 +68,7 @@ club leaderboard
 
     `RacenetDataReceiver.Racenet.rawData.timeTrialPreInfo`  
     > Such as location name/id, route name/id, vehicle/vehicleClass id, etc.  
-    
+
 
 ### Next Steps:
 - [x] Code as SimHub plugin

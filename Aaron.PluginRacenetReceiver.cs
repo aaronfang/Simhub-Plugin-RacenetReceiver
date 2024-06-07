@@ -42,6 +42,8 @@ namespace Aaron.PluginRacenetReceiver
         private string VehicleClassName;
         private string trackId;
         private string previousTrackId;
+        private bool timeTrialTaskExecuted = false;
+        private bool clubTaskExecuted = false;
 
         public void DataUpdate(PluginManager pluginManager, ref GameData data)
         {
@@ -53,6 +55,7 @@ namespace Aaron.PluginRacenetReceiver
                 trackName = (string)(pluginManager.GetPropertyValue("DataCorePlugin.GameData.TrackName"));
                 trackId = (string)(pluginManager.GetPropertyValue("DataCorePlugin.GameData.TrackId"));
                 string newTrackId = (string)(pluginManager.GetPropertyValue("DataCorePlugin.GameData.TrackId"));
+                float stageProgress = (float)(pluginManager.GetPropertyValue("DataCorePlugin.GameRawData.SessionUpdate.stage_progress"));
 
                 if (string.IsNullOrEmpty(vehicleId) && string.IsNullOrEmpty(trackName) && string.IsNullOrEmpty(trackId))
                 {
@@ -75,9 +78,11 @@ namespace Aaron.PluginRacenetReceiver
                         if (!string.IsNullOrEmpty(stageId) && VehicleClassId != 0)
                         {
                             // Check if it's been more than a minute since the last fetch
-                            if ((DateTime.Now - lastFetchTimeForTimeTrial).TotalMinutes >= 1)
+                            if ((DateTime.Now - lastFetchTimeForTimeTrial).TotalMinutes >= 1 || (stageProgress < 0 && !timeTrialTaskExecuted))
                             {
                                 lastFetchTimeForTimeTrial = DateTime.Now;
+                                timeTrialTaskExecuted = true;
+
                                 Task.Run(async () =>
                                 {
                                     var leaderboardData0 = await FetchTimeTrialLeaderboardDataAsync(int.Parse(stageId), VehicleClassId, 0, 20, false, "");
@@ -89,10 +94,17 @@ namespace Aaron.PluginRacenetReceiver
                                 });
                             }
                         }
+
+                        // Reset the flag if stageProgress is less than or equal to 1
+                        if (stageProgress >= 0)
+                        {
+                            timeTrialTaskExecuted = false;
+                        }
                     }
                     catch (Exception ex)
                     {
                         Logging.Current.Info($"Error parsing trackId: {ex.Message}");
+                        timeTrialTaskExecuted = true;
                     }
                 }
 
@@ -100,8 +112,9 @@ namespace Aaron.PluginRacenetReceiver
                 if (!string.IsNullOrEmpty(Settings.ClubID) && !string.IsNullOrEmpty(trackId) && !string.IsNullOrEmpty(vehicleId) && clubChampionshipInfo != null && clubChampionshipInfo.Count != 0)
                 {
                     PluginManager.SetPropertyValue("Racenet.rawData.currentClubName", this.GetType(), Settings.ClubName);
+                    PluginManager.SetPropertyValue("Racenet.rawData.currentCarClass", this.GetType(), Settings.SelectedCarClass);
                     // Check if it's been more than a minute since the last fetch
-                    if ((DateTime.Now - lastFetchTimeForClubChampionship).TotalMinutes >= 1 || newTrackId != previousTrackId)
+                    if ((DateTime.Now - lastFetchTimeForClubChampionship).TotalMinutes >= 1 || newTrackId != previousTrackId || (stageProgress < 0 && !clubTaskExecuted))
                     {
                         previousTrackId = newTrackId;
                         
@@ -123,18 +136,33 @@ namespace Aaron.PluginRacenetReceiver
                                 // Set the club leaderboard data to property
                                 PluginManager.SetPropertyValue("Racenet.rawData.clubLeaderboardCurrentStage", this.GetType(), JsonConvert.SerializeObject(clubLeaderboardData, Formatting.Indented));
 
-                                var (playerId, leaderboardId) = GetPlayerIdLeaderboardIdByRank(1, "club", true);
-                                if (playerId != null && leaderboardId != null)
-                                {
-                                    var bestRealtimeData = await FetchPlayerRealTimeDataAsync(leaderboardId, playerId);
-                                    PluginManager.SetPropertyValue("Racenet.rawData.bestAvailableRealtimeData", this.GetType(), JsonConvert.SerializeObject(bestRealtimeData, Formatting.Indented));
-                                }
+                                // Set the current club stage to property
+                                // from "Racenet.rawData.clubChampionshipInfo" get "currentChampionship" -> "events" -> "stages" -> "stageSettings" -> "routeID" == stageId, then get "name" and set to property
+
+                                // PluginManager.SetPropertyValue("Racenet.rawData.currentClubStage", this.GetType(), );
+
+                                // var (playerId, leaderboardId) = GetPlayerIdLeaderboardIdByRank(1, "club", true); //DataCorePlugin.GameRawData.SessionUpdate.stage_current_time
+                                // if (playerId != null && leaderboardId != null)
+                                // {
+                                //     var bestRealtimeData = await FetchPlayerRealTimeDataAsync(leaderboardId, playerId);
+                                //     PluginManager.SetPropertyValue("Racenet.rawData.bestAvailableRealtimeData", this.GetType(), JsonConvert.SerializeObject(bestRealtimeData, Formatting.Indented));
+                                // }
+
+                                // Set the flag to true as the task has been executed
+                                clubTaskExecuted = true;
                             }
                             catch (Exception ex)
                             {
                                 Logging.Current.Error($"Error in Task.Run: {ex.Message}");
+                                clubTaskExecuted = true;
                             }
                         });
+                    }
+
+                    // Reset the flag if stageProgress is larger than 0
+                    if (stageProgress >= 0)
+                    {
+                        clubTaskExecuted = false;
                     }
                 }
                 else
@@ -155,9 +183,11 @@ namespace Aaron.PluginRacenetReceiver
             pluginManager.AddProperty("Racenet.rawData.clubChampionshipInfo", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.clubLeaderboardCurrentStage", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.currentClubName", this.GetType(), "-");
+            // pluginManager.AddProperty("Racenet.rawData.currentClubStage", this.GetType(), "-");
+            pluginManager.AddProperty("Racenet.rawData.currentCarClass", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.currentClubWeatherAndSurface", this.GetType(), "-");
             pluginManager.AddProperty("Racenet.rawData.nationalityID", this.GetType(), "-");
-            pluginManager.AddProperty("Racenet.rawData.bestAvailableRealtimeData", this.GetType(), "-");
+            // pluginManager.AddProperty("Racenet.rawData.bestAvailableRealtimeData", this.GetType(), "-");
 
             PluginManager.SetPropertyValue("Racenet.rawData.nationalityID", this.GetType(), new SettingsControl(this).LoadJsonFromResources("Aaron.PluginRacenetReceiver.nationalityID.json"));
 

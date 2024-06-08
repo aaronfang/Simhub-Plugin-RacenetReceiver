@@ -323,7 +323,27 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
-                        <ComboBox x:Name="clubEventComboBox" Grid.Column="1" Margin="5" SelectionChanged="ClubEventComboBox_SelectionChanged" VerticalContentAlignment="Center" />
+                        <ComboBox x:Name="clubEventComboBox" Grid.Column="1" Margin="5" SelectionChanged="ClubEventComboBox_SelectionChanged" VerticalContentAlignment="Center" >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Rectangle x:Name="BackgroundRectangle" Fill="Gray" />
+                                        <TextBlock Text="{Binding Location}" />
+                                    </Grid>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Status}" Value="0">
+                                            <Setter TargetName="BackgroundRectangle" Property="Fill" Value="Transparent" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="1">
+                                            <Setter TargetName="BackgroundRectangle" Property="Fill" Value="Green" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="2">
+                                            <Setter TargetName="BackgroundRectangle" Property="Fill" Value="Gray" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                         <ComboBox x:Name="clubStageComboBox" Grid.Column="2" Margin="5" SelectionChanged="ClubStageComboBox_SelectionChanged" VerticalContentAlignment="Center" />
                         <!-- <ComboBox x:Name="clubScoreComboBox" Grid.Column="3" Margin="5" VerticalContentAlignment="Center" /> -->
                     </Grid>

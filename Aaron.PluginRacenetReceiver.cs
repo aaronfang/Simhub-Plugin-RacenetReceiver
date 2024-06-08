@@ -41,7 +41,7 @@ namespace Aaron.PluginRacenetReceiver
         private int VehicleClassId;
         private string VehicleClassName;
         private string trackId;
-        private string previousTrackId;
+        private string previousClubId;
         private bool timeTrialTaskExecuted = false;
         private bool clubTaskExecuted = false;
 
@@ -114,9 +114,9 @@ namespace Aaron.PluginRacenetReceiver
                     PluginManager.SetPropertyValue("Racenet.rawData.currentClubName", this.GetType(), Settings.ClubName);
                     // PluginManager.SetPropertyValue("Racenet.rawData.currentCarClass", this.GetType(), Settings.SelectedCarClass);
                     // Check if it's been more than a minute since the last fetch
-                    if ((DateTime.Now - lastFetchTimeForClubChampionship).TotalMinutes >= 1 || newTrackId != previousTrackId || (stageProgress < 0 && !clubTaskExecuted))
+                    if ((DateTime.Now - lastFetchTimeForClubChampionship).TotalMinutes >= 1 || Settings.ClubID != previousClubId || (stageProgress < 0 && !clubTaskExecuted))
                     {
-                        previousTrackId = newTrackId;
+                        previousClubId = Settings.ClubID;
                         
                         lastFetchTimeForClubChampionship = DateTime.Now;
 

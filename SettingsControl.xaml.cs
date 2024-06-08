@@ -467,9 +467,13 @@ namespace Aaron.PluginRacenetReceiver
                     // Fill the clubEventComboBox with the club event>eventSettings>location value
                     foreach (var clubChampionshipEvent in clubChampionshipEvents.Children<JObject>())
                     {
+                        var clubEventStatus = clubChampionshipEvent["status"].Value<int>();
                         var clubEventLocationName = clubChampionshipEvent["eventSettings"]["location"].Value<string>();
-                        clubEventComboBox.Items.Add(clubEventLocationName);
+                        // clubEventComboBox.Items.Add(clubEventLocationName);
+                        clubEventComboBox.Items.Add(new { Location = clubEventLocationName, Status = clubEventStatus });
                     }
+
+                    clubStageComboBox.DisplayMemberPath = "Location";
 
                     // Set the selected item to the saved event location
                     if (plugin.Settings.SelectedEventLocation != null)
@@ -486,7 +490,12 @@ namespace Aaron.PluginRacenetReceiver
                     }
                     if (clubEventComboBox.SelectedItem == null && clubEventComboBox.HasItems)
                     {
-                        clubEventComboBox.SelectedIndex = 0;
+                        // clubEventComboBox.SelectedIndex = 0;
+                        // Set the default selected item
+                        // If there is an item with status 1, select it. If there are multiple, select the first one.
+                        // If there are no items with status 1, select the first item in the list.
+                        var firstActiveItem = clubEventComboBox.Items.Cast<dynamic>().FirstOrDefault(item => item.Status == 1);
+                        clubEventComboBox.SelectedItem = firstActiveItem ?? clubEventComboBox.Items[0];
                     }
 
                     // Resubscribe to the SelectionChanged event
@@ -507,11 +516,14 @@ namespace Aaron.PluginRacenetReceiver
         private void ClubEventComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (clubEventComboBox.SelectedItem == null) return;
-
-            string selectedEventLocation = clubEventComboBox.SelectedItem.ToString();
+            
+            var selectedItem = (dynamic)clubEventComboBox.SelectedItem;
+            string selectedEventLocation = selectedItem.Location;
+            int clubEventStatus = selectedItem.Status;
 
             // Save the user's selection
             plugin.Settings.SelectedEventLocation = selectedEventLocation;
+            plugin.Settings.SelectedEventStatus = clubEventStatus.ToString();
             // Reset the selected club stage
             // plugin.Settings.SelectedClubStage = null;、
             SaveSettings();
